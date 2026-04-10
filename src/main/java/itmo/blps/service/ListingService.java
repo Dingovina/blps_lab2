@@ -43,8 +43,8 @@ public class ListingService {
     @Transactional
     public Listing update(Long id, User currentUser, ListingCreateRequest request) {
         Listing l = getListingOwnedBy(id, currentUser);
-        if (l.getStatus() != ListingStatus.DRAFT) {
-            throw new BadRequestException("Only DRAFT listings can be updated");
+        if (l.getStatus() != ListingStatus.DRAFT && l.getStatus() != ListingStatus.ACTIVE) {
+            throw new BadRequestException("Only DRAFT or ACTIVE listings can be updated");
         }
         mapRequestToListing(request, l);
         return listingRepository.save(l);
