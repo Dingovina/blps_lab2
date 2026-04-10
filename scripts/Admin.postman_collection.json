@@ -1,0 +1,129 @@
+{
+	"info": {
+		"name": "Admin",
+		"description": "Администрирование: просмотр всех пользователей, объявлений, обращений, платежей; публикация и управление статусами",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Все пользователи",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{admin_login}}"}, {"key": "password", "value": "{{admin_password}}"}]},
+				"url": {
+					"raw": "{{url}}/api/admin/users?page=0&size=20",
+					"host": ["{{url}}"],
+					"path": ["api","admin","users"],
+					"query": [
+						{"key": "page", "value": "0"},
+						{"key": "size", "value": "20"}
+					]
+				}
+			}
+		},
+		{
+			"name": "2. Все объявления",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{admin_login}}"}, {"key": "password", "value": "{{admin_password}}"}]},
+				"url": {
+					"raw": "{{url}}/api/admin/listings?page=0&size=20",
+					"host": ["{{url}}"],
+					"path": ["api","admin","listings"],
+					"query": [
+						{"key": "page", "value": "0"},
+						{"key": "size", "value": "20"}
+					]
+				}
+			}
+		},
+		{
+			"name": "3. Все обращения",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{admin_login}}"}, {"key": "password", "value": "{{admin_password}}"}]},
+				"url": {
+					"raw": "{{url}}/api/admin/inquiries?page=0&size=20",
+					"host": ["{{url}}"],
+					"path": ["api","admin","inquiries"],
+					"query": [
+						{"key": "page", "value": "0"},
+						{"key": "size", "value": "20"}
+					]
+				}
+			}
+		},
+		{
+			"name": "4. Все платежи",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{admin_login}}"}, {"key": "password", "value": "{{admin_password}}"}]},
+				"url": {
+					"raw": "{{url}}/api/admin/payments?page=0&size=20",
+					"host": ["{{url}}"],
+					"path": ["api","admin","payments"],
+					"query": [
+						{"key": "page", "value": "0"},
+						{"key": "size", "value": "20"}
+					]
+				}
+			}
+		},
+		{
+			"name": "5. Опубликовать объявление (listing 1 — draft)",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{admin_login}}"}, {"key": "password", "value": "{{admin_password}}"}]},
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {"raw": "{{url}}/api/admin/listings/1/publish", "host": ["{{url}}"], "path": ["api","admin","listings","1","publish"]}
+			}
+		},
+		{
+			"name": "6. Изменить статус объявления (listing 5 → ACTIVE)",
+			"request": {
+				"method": "PATCH",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{admin_login}}"}, {"key": "password", "value": "{{admin_password}}"}]},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"status\": \"ACTIVE\"\n}"
+				},
+				"url": {"raw": "{{url}}/api/admin/listings/5/status", "host": ["{{url}}"], "path": ["api","admin","listings","5","status"]}
+			}
+		},
+		{
+			"name": "7. Админ-запрос от buyer (должен быть 403)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{buyer1_login}}"}, {"key": "password", "value": "{{buyer1_password}}"}]},
+				"url": {
+					"raw": "{{url}}/api/admin/users",
+					"host": ["{{url}}"],
+					"path": ["api","admin","users"]
+				}
+			}
+		},
+		{
+			"name": "8. Админ-запрос от seller (должен быть 403)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"url": {
+					"raw": "{{url}}/api/admin/listings",
+					"host": ["{{url}}"],
+					"path": ["api","admin","listings"]
+				}
+			}
+		}
+	]
+}

@@ -1,0 +1,59 @@
+{
+	"info": {
+		"name": "Auth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register (new buyer)",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"newbuyer@test.local\",\n    \"password\": \"newpass123\",\n    \"role\": \"BUYER\"\n}"
+				},
+				"url": {"raw": "{{url}}/api/auth/register", "host": ["{{url}}"], "path": ["api","auth","register"]}
+			}
+		},
+		{
+			"name": "Register (new seller)",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"newseller@test.local\",\n    \"password\": \"newpass123\",\n    \"role\": \"SELLER\"\n}"
+				},
+				"url": {"raw": "{{url}}/api/auth/register", "host": ["{{url}}"], "path": ["api","auth","register"]}
+			}
+		},
+		{
+			"name": "Me (admin)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{admin_login}}"}, {"key": "password", "value": "{{admin_password}}"}]},
+				"url": {"raw": "{{url}}/api/auth/me", "host": ["{{url}}"], "path": ["api","auth","me"]}
+			}
+		},
+		{
+			"name": "Me (seller1)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"url": {"raw": "{{url}}/api/auth/me", "host": ["{{url}}"], "path": ["api","auth","me"]}
+			}
+		},
+		{
+			"name": "Me (buyer1)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{buyer1_login}}"}, {"key": "password", "value": "{{buyer1_password}}"}]},
+				"url": {"raw": "{{url}}/api/auth/me", "host": ["{{url}}"], "path": ["api","auth","me"]}
+			}
+		}
+	]
+}

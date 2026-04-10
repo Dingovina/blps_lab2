@@ -1,0 +1,117 @@
+{
+	"info": {
+		"name": "Inquiries",
+		"description": "Обращения: создание запроса на показ, подтверждение/отклонение, результат визита",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Создать обращение (buyer1 → listing 4)",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{buyer1_login}}"}, {"key": "password", "value": "{{buyer1_password}}"}]},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"listingId\": 4,\n    \"message\": \"Хочу посмотреть квартиру в субботу днём\"\n}"
+				},
+				"url": {"raw": "{{url}}/api/inquiries", "host": ["{{url}}"], "path": ["api","inquiries"]}
+			}
+		},
+		{
+			"name": "2. Список обращений (buyer1)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{buyer1_login}}"}, {"key": "password", "value": "{{buyer1_password}}"}]},
+				"url": {
+					"raw": "{{url}}/api/inquiries?page=0&size=10",
+					"host": ["{{url}}"],
+					"path": ["api","inquiries"],
+					"query": [
+						{"key": "page", "value": "0"},
+						{"key": "size", "value": "10"}
+					]
+				}
+			}
+		},
+		{
+			"name": "3. Список обращений (seller2 — видит по своим listings)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller2_login}}"}, {"key": "password", "value": "{{seller2_password}}"}]},
+				"url": {
+					"raw": "{{url}}/api/inquiries?page=0&size=10",
+					"host": ["{{url}}"],
+					"path": ["api","inquiries"],
+					"query": [
+						{"key": "page", "value": "0"},
+						{"key": "size", "value": "10"}
+					]
+				}
+			}
+		},
+		{
+			"name": "4. Получить обращение по ID (buyer1, inquiry 1)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{buyer1_login}}"}, {"key": "password", "value": "{{buyer1_password}}"}]},
+				"url": {"raw": "{{url}}/api/inquiries/1", "host": ["{{url}}"], "path": ["api","inquiries","1"]}
+			}
+		},
+		{
+			"name": "5. Подтвердить показ (seller1, inquiry 1 — CONFIRM)",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"decision\": \"CONFIRM\",\n    \"scheduledAt\": \"2026-04-15T14:00:00Z\",\n    \"contactInfo\": \"Позвоните: +7-999-123-45-67\"\n}"
+				},
+				"url": {"raw": "{{url}}/api/inquiries/1/showing-decision", "host": ["{{url}}"], "path": ["api","inquiries","1","showing-decision"]}
+			}
+		},
+		{
+			"name": "6. Отклонить показ (seller1, inquiry 5 — REJECT)",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"decision\": \"REJECT\",\n    \"reason\": \"Квартира уже продана\"\n}"
+				},
+				"url": {"raw": "{{url}}/api/inquiries/5/showing-decision", "host": ["{{url}}"], "path": ["api","inquiries","5","showing-decision"]}
+			}
+		},
+		{
+			"name": "7. Результат визита (buyer1, inquiry 1 — willBuy=true)",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{buyer1_login}}"}, {"key": "password", "value": "{{buyer1_password}}"}]},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"willBuy\": true\n}"
+				},
+				"url": {"raw": "{{url}}/api/inquiries/1/visit-result", "host": ["{{url}}"], "path": ["api","inquiries","1","visit-result"]}
+			}
+		},
+		{
+			"name": "8. Создать обращение (seller — должен быть 403)",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"listingId\": 4,\n    \"message\": \"Этот запрос должен вернуть 403\"\n}"
+				},
+				"url": {"raw": "{{url}}/api/inquiries", "host": ["{{url}}"], "path": ["api","inquiries"]}
+			}
+		}
+	]
+}

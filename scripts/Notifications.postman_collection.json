@@ -1,0 +1,64 @@
+{
+	"info": {
+		"name": "Notifications",
+		"description": "Уведомления: просмотр и отметка прочитанными",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Мои уведомления (seller1)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"url": {
+					"raw": "{{url}}/api/notifications?page=0&size=20",
+					"host": ["{{url}}"],
+					"path": ["api","notifications"],
+					"query": [
+						{"key": "page", "value": "0"},
+						{"key": "size", "value": "20"}
+					]
+				}
+			}
+		},
+		{
+			"name": "2. Мои уведомления (buyer1)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{buyer1_login}}"}, {"key": "password", "value": "{{buyer1_password}}"}]},
+				"url": {
+					"raw": "{{url}}/api/notifications?page=0&size=20",
+					"host": ["{{url}}"],
+					"path": ["api","notifications"],
+					"query": [
+						{"key": "page", "value": "0"},
+						{"key": "size", "value": "20"}
+					]
+				}
+			}
+		},
+		{
+			"name": "3. Отметить прочитанным (seller1, notification 3)",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"url": {"raw": "{{url}}/api/notifications/3/read", "host": ["{{url}}"], "path": ["api","notifications","3","read"]}
+			}
+		},
+		{
+			"name": "4. Уведомления без авторизации (должен быть 401)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/api/notifications",
+					"host": ["{{url}}"],
+					"path": ["api","notifications"]
+				}
+			}
+		}
+	]
+}

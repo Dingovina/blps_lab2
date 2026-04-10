@@ -1,0 +1,137 @@
+{
+	"info": {
+		"name": "Listings",
+		"description": "Объявления: создание, редактирование, публикация, продвижение, подтверждение актуальности, закрытие, поиск",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Поиск объявлений (публичный)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/api/listings/search?page=0&size=10",
+					"host": ["{{url}}"],
+					"path": ["api","listings","search"],
+					"query": [
+						{"key": "page", "value": "0"},
+						{"key": "size", "value": "10"}
+					]
+				}
+			}
+		},
+		{
+			"name": "2. Получить объявление по ID (публичный)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {"raw": "{{url}}/api/listings/2", "host": ["{{url}}"], "path": ["api","listings","2"]}
+			}
+		},
+		{
+			"name": "3. Создать объявление (seller1)",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Новая квартира в центре Москвы\",\n    \"description\": \"Просторная 2-комнатная квартира с видом на парк\",\n    \"address\": \"ул. Арбат, 15\",\n    \"region\": \"Москва\",\n    \"price\": 15000000,\n    \"areaSqm\": 65.5,\n    \"rooms\": 2\n}"
+				},
+				"url": {"raw": "{{url}}/api/listings", "host": ["{{url}}"], "path": ["api","listings"]}
+			}
+		},
+		{
+			"name": "4. Редактировать объявление (seller1, listing 1 - draft)",
+			"request": {
+				"method": "PUT",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Студия на окраине (обновлено)\",\n    \"description\": \"Добавил фото, свежий ремонт\",\n    \"address\": \"ул. Новая, 1\",\n    \"region\": \"Москва\",\n    \"price\": 5500000,\n    \"areaSqm\": 28.5,\n    \"rooms\": 1\n}"
+				},
+				"url": {"raw": "{{url}}/api/listings/1", "host": ["{{url}}"], "path": ["api","listings","1"]}
+			}
+		},
+		{
+			"name": "5. Мои объявления (seller1)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"url": {
+					"raw": "{{url}}/api/seller/listings?page=0&size=10",
+					"host": ["{{url}}"],
+					"path": ["api","seller","listings"],
+					"query": [
+						{"key": "page", "value": "0"},
+						{"key": "size", "value": "10"}
+					]
+				}
+			}
+		},
+		{
+			"name": "6. Выбор продвижения (seller1, listing 2)",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"withPromotion\": true\n}"
+				},
+				"url": {"raw": "{{url}}/api/listings/2/promotion/choice", "host": ["{{url}}"], "path": ["api","listings","2","promotion","choice"]}
+			}
+		},
+		{
+			"name": "7. Оплата продвижения (seller1, listing 2)",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"promotionType\": \"TOP\"\n}"
+				},
+				"url": {"raw": "{{url}}/api/listings/2/promotion/pay", "host": ["{{url}}"], "path": ["api","listings","2","promotion","pay"]}
+			}
+		},
+		{
+			"name": "8. Подтвердить актуальность (seller1, listing 2)",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"relevant\": true\n}"
+				},
+				"url": {"raw": "{{url}}/api/listings/2/confirm-relevance", "host": ["{{url}}"], "path": ["api","listings","2","confirm-relevance"]}
+			}
+		},
+		{
+			"name": "9. Закрыть объявление (seller1, listing 2)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"url": {"raw": "{{url}}/api/listings/2/close", "host": ["{{url}}"], "path": ["api","listings","2","close"]}
+			}
+		},
+		{
+			"name": "10. Создать объявление (buyer — должен быть 403)",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{buyer1_login}}"}, {"key": "password", "value": "{{buyer1_password}}"}]},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Этот запрос должен вернуть 403\",\n    \"description\": \"Покупатель не может создавать объявления\",\n    \"address\": \"ул. Тестовая\",\n    \"region\": \"Москва\",\n    \"price\": 1000000,\n    \"areaSqm\": 30,\n    \"rooms\": 1\n}"
+				},
+				"url": {"raw": "{{url}}/api/listings", "host": ["{{url}}"], "path": ["api","listings"]}
+			}
+		}
+	]
+}
