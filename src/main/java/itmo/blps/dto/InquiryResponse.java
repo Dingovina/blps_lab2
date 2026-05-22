@@ -1,9 +1,15 @@
 package itmo.blps.dto;
 
 import itmo.blps.entity.Inquiry;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class InquiryResponse {
 
     private Long id;
@@ -30,85 +36,5 @@ public class InquiryResponse {
         r.setWillBuy(i.getWillBuy());
         r.setCreatedAt(i.getCreatedAt());
         return r;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getListingId() {
-        return listingId;
-    }
-
-    public void setListingId(Long listingId) {
-        this.listingId = listingId;
-    }
-
-    public Long getBuyerId() {
-        return buyerId;
-    }
-
-    public void setBuyerId(Long buyerId) {
-        this.buyerId = buyerId;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Instant getScheduledAt() {
-        return scheduledAt;
-    }
-
-    public void setScheduledAt(Instant scheduledAt) {
-        this.scheduledAt = scheduledAt;
-    }
-
-    public String getContactInfo() {
-        return contactInfo;
-    }
-
-    public void setContactInfo(String contactInfo) {
-        this.contactInfo = contactInfo;
-    }
-
-    public String getRejectReason() {
-        return rejectReason;
-    }
-
-    public void setRejectReason(String rejectReason) {
-        this.rejectReason = rejectReason;
-    }
-
-    public Boolean getWillBuy() {
-        return willBuy;
-    }
-
-    public void setWillBuy(Boolean willBuy) {
-        this.willBuy = willBuy;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
     }
 }

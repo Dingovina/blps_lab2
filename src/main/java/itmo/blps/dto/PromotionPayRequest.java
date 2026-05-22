@@ -1,9 +1,15 @@
 package itmo.blps.dto;
 
+import itmo.blps.entity.PromotionType;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
-import itmo.blps.entity.PromotionType;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class PromotionPayRequest {
 
     @NotNull(message = "Promotion type is required")
@@ -18,28 +24,4 @@ public class PromotionPayRequest {
 
     private String returnUrl;
     private String cancelUrl;
-
-    public PromotionType getPromotionType() {
-        return promotionType;
-    }
-
-    public void setPromotionType(PromotionType promotionType) {
-        this.promotionType = promotionType;
-    }
-
-    public String getReturnUrl() {
-        return returnUrl;
-    }
-
-    public void setReturnUrl(String returnUrl) {
-        this.returnUrl = returnUrl;
-    }
-
-    public String getCancelUrl() {
-        return cancelUrl;
-    }
-
-    public void setCancelUrl(String cancelUrl) {
-        this.cancelUrl = cancelUrl;
-    }
 }

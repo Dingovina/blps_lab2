@@ -1,14 +1,13 @@
 package itmo.blps.dto;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
 public class VisitResultRequest {
 
     private Boolean willBuy;
-
-    public Boolean getWillBuy() {
-        return willBuy;
-    }
-
-    public void setWillBuy(Boolean willBuy) {
-        this.willBuy = willBuy;
-    }
 }

@@ -1,9 +1,15 @@
 package itmo.blps.dto;
 
 import itmo.blps.entity.Payment;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class PaymentResponse {
 
     private Long id;
@@ -26,69 +32,5 @@ public class PaymentResponse {
         r.setAmountCents(p.getAmountCents());
         r.setCreatedAt(p.getCreatedAt());
         return r;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getListingId() {
-        return listingId;
-    }
-
-    public void setListingId(Long listingId) {
-        this.listingId = listingId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getPromotionType() {
-        return promotionType;
-    }
-
-    public void setPromotionType(String promotionType) {
-        this.promotionType = promotionType;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getExternalId() {
-        return externalId;
-    }
-
-    public void setExternalId(String externalId) {
-        this.externalId = externalId;
-    }
-
-    public Integer getAmountCents() {
-        return amountCents;
-    }
-
-    public void setAmountCents(Integer amountCents) {
-        this.amountCents = amountCents;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
     }
 }

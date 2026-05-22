@@ -1,9 +1,16 @@
 package itmo.blps.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "cian_listings")
 public class Listing {
@@ -56,124 +63,4 @@ public class Listing {
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getSeller() {
-        return seller;
-    }
-
-    public void setSeller(User seller) {
-        this.seller = seller;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getRegion() {
-        return region;
-    }
-
-    public void setRegion(String region) {
-        this.region = region;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public BigDecimal getAreaSqm() {
-        return areaSqm;
-    }
-
-    public void setAreaSqm(BigDecimal areaSqm) {
-        this.areaSqm = areaSqm;
-    }
-
-    public Integer getRooms() {
-        return rooms;
-    }
-
-    public void setRooms(Integer rooms) {
-        this.rooms = rooms;
-    }
-
-    public ListingStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ListingStatus status) {
-        this.status = status;
-    }
-
-    public PromotionType getPromotion() {
-        return promotion;
-    }
-
-    public void setPromotion(PromotionType promotion) {
-        this.promotion = promotion;
-    }
-
-    public Instant getPublishedAt() {
-        return publishedAt;
-    }
-
-    public void setPublishedAt(Instant publishedAt) {
-        this.publishedAt = publishedAt;
-    }
-
-    public Instant getExpiresAt() {
-        return expiresAt;
-    }
-
-    public void setExpiresAt(Instant expiresAt) {
-        this.expiresAt = expiresAt;
-    }
-
-    public Instant getClosedAt() {
-        return closedAt;
-    }
-
-    public void setClosedAt(Instant closedAt) {
-        this.closedAt = closedAt;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
 }

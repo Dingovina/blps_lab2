@@ -1,8 +1,15 @@
 package itmo.blps.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.Instant;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "cian_notifications")
 public class Notification {
@@ -37,76 +44,4 @@ public class Notification {
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public NotificationType getType() {
-        return type;
-    }
-
-    public void setType(NotificationType type) {
-        this.type = type;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public RelatedEntityType getRelatedEntityType() {
-        return relatedEntityType;
-    }
-
-    public void setRelatedEntityType(RelatedEntityType relatedEntityType) {
-        this.relatedEntityType = relatedEntityType;
-    }
-
-    public Long getRelatedEntityId() {
-        return relatedEntityId;
-    }
-
-    public void setRelatedEntityId(Long relatedEntityId) {
-        this.relatedEntityId = relatedEntityId;
-    }
-
-    public boolean isRead() {
-        return read;
-    }
-
-    public void setRead(boolean read) {
-        this.read = read;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
 }

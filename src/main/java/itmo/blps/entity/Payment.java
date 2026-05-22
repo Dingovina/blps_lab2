@@ -1,8 +1,15 @@
 package itmo.blps.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.Instant;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "cian_payments")
 public class Payment {
@@ -35,68 +42,4 @@ public class Payment {
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Listing getListing() {
-        return listing;
-    }
-
-    public void setListing(Listing listing) {
-        this.listing = listing;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public PromotionType getPromotionType() {
-        return promotionType;
-    }
-
-    public void setPromotionType(PromotionType promotionType) {
-        this.promotionType = promotionType;
-    }
-
-    public PaymentStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(PaymentStatus status) {
-        this.status = status;
-    }
-
-    public String getExternalId() {
-        return externalId;
-    }
-
-    public void setExternalId(String externalId) {
-        this.externalId = externalId;
-    }
-
-    public Integer getAmountCents() {
-        return amountCents;
-    }
-
-    public void setAmountCents(Integer amountCents) {
-        this.amountCents = amountCents;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
 }

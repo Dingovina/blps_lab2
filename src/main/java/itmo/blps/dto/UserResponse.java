@@ -2,9 +2,15 @@ package itmo.blps.dto;
 
 import itmo.blps.entity.User;
 import itmo.blps.entity.UserRole;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class UserResponse {
 
     private Long id;
@@ -19,37 +25,5 @@ public class UserResponse {
         r.setRole(user.getRole());
         r.setCreatedAt(user.getCreatedAt());
         return r;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
     }
 }

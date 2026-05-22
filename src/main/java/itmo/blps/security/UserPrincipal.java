@@ -1,9 +1,13 @@
 package itmo.blps.security;
 
 import itmo.blps.entity.User;
+import lombok.Getter;
+
 import java.security.Principal;
 
+@Getter
 public class UserPrincipal implements Principal {
+
     private final User user;
 
     public UserPrincipal(User user) {
@@ -13,9 +17,5 @@ public class UserPrincipal implements Principal {
     @Override
     public String getName() {
         return user.getEmail();
-    }
-
-    public User getUser() {
-        return user;
     }
 }

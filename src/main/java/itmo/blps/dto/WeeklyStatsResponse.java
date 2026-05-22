@@ -1,9 +1,15 @@
 package itmo.blps.dto;
 
 import itmo.blps.entity.WeeklyStats;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class WeeklyStatsResponse {
 
     private Instant periodStart;
@@ -34,101 +40,5 @@ public class WeeklyStatsResponse {
         r.setCompletedShowings(stats.getCompletedShowings());
         r.setGeneratedAt(stats.getGeneratedAt());
         return r;
-    }
-
-    public Instant getPeriodStart() {
-        return periodStart;
-    }
-
-    public void setPeriodStart(Instant periodStart) {
-        this.periodStart = periodStart;
-    }
-
-    public Instant getPeriodEnd() {
-        return periodEnd;
-    }
-
-    public void setPeriodEnd(Instant periodEnd) {
-        this.periodEnd = periodEnd;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public Integer getPublishedListings() {
-        return publishedListings;
-    }
-
-    public void setPublishedListings(Integer publishedListings) {
-        this.publishedListings = publishedListings;
-    }
-
-    public Integer getClosedListings() {
-        return closedListings;
-    }
-
-    public void setClosedListings(Integer closedListings) {
-        this.closedListings = closedListings;
-    }
-
-    public Integer getCompletedInquiries() {
-        return completedInquiries;
-    }
-
-    public void setCompletedInquiries(Integer completedInquiries) {
-        this.completedInquiries = completedInquiries;
-    }
-
-    public Integer getScheduledInquiries() {
-        return scheduledInquiries;
-    }
-
-    public void setScheduledInquiries(Integer scheduledInquiries) {
-        this.scheduledInquiries = scheduledInquiries;
-    }
-
-    public Integer getShowRequests() {
-        return showRequests;
-    }
-
-    public void setShowRequests(Integer showRequests) {
-        this.showRequests = showRequests;
-    }
-
-    public Integer getScheduledShowings() {
-        return scheduledShowings;
-    }
-
-    public void setScheduledShowings(Integer scheduledShowings) {
-        this.scheduledShowings = scheduledShowings;
-    }
-
-    public Integer getRejectedShowings() {
-        return rejectedShowings;
-    }
-
-    public void setRejectedShowings(Integer rejectedShowings) {
-        this.rejectedShowings = rejectedShowings;
-    }
-
-    public Integer getCompletedShowings() {
-        return completedShowings;
-    }
-
-    public void setCompletedShowings(Integer completedShowings) {
-        this.completedShowings = completedShowings;
-    }
-
-    public Instant getGeneratedAt() {
-        return generatedAt;
-    }
-
-    public void setGeneratedAt(Instant generatedAt) {
-        this.generatedAt = generatedAt;
     }
 }

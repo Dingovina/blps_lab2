@@ -1,8 +1,15 @@
 package itmo.blps.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.Instant;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "cian_inquiries")
 public class Inquiry {
@@ -43,92 +50,4 @@ public class Inquiry {
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Listing getListing() {
-        return listing;
-    }
-
-    public void setListing(Listing listing) {
-        this.listing = listing;
-    }
-
-    public User getBuyer() {
-        return buyer;
-    }
-
-    public void setBuyer(User buyer) {
-        this.buyer = buyer;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public InquiryStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(InquiryStatus status) {
-        this.status = status;
-    }
-
-    public Instant getScheduledAt() {
-        return scheduledAt;
-    }
-
-    public void setScheduledAt(Instant scheduledAt) {
-        this.scheduledAt = scheduledAt;
-    }
-
-    public String getContactInfo() {
-        return contactInfo;
-    }
-
-    public void setContactInfo(String contactInfo) {
-        this.contactInfo = contactInfo;
-    }
-
-    public String getRejectReason() {
-        return rejectReason;
-    }
-
-    public void setRejectReason(String rejectReason) {
-        this.rejectReason = rejectReason;
-    }
-
-    public Boolean getWillBuy() {
-        return willBuy;
-    }
-
-    public void setWillBuy(Boolean willBuy) {
-        this.willBuy = willBuy;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }

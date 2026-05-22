@@ -1,9 +1,15 @@
 package itmo.blps.dto;
 
 import itmo.blps.entity.Notification;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class NotificationResponse {
 
     private Long id;
@@ -26,69 +32,5 @@ public class NotificationResponse {
         r.setRead(n.isRead());
         r.setCreatedAt(n.getCreatedAt());
         return r;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public String getRelatedEntityType() {
-        return relatedEntityType;
-    }
-
-    public void setRelatedEntityType(String relatedEntityType) {
-        this.relatedEntityType = relatedEntityType;
-    }
-
-    public Long getRelatedEntityId() {
-        return relatedEntityId;
-    }
-
-    public void setRelatedEntityId(Long relatedEntityId) {
-        this.relatedEntityId = relatedEntityId;
-    }
-
-    public boolean isRead() {
-        return read;
-    }
-
-    public void setRead(boolean read) {
-        this.read = read;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
     }
 }
