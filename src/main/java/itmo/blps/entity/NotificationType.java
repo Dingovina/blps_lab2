@@ -9,5 +9,6 @@ public enum NotificationType {
     NEW_INQUIRY,
     SHOWING_SCHEDULED,
     SHOWING_REJECTED,
-    LISTING_CLOSED
+    LISTING_CLOSED,
+    WEEKLY_STATS
 }

@@ -49,4 +49,16 @@ public interface ListingRepository extends JpaRepository<Listing, Long>, JpaSpec
                                   @Param("region") String region,
                                   @Param("sellerId") Long sellerId,
                                   Pageable pageable);
+
+    @Query("SELECT COUNT(l) FROM Listing l WHERE l.seller.id = :sellerId " +
+            "AND l.publishedAt >= :start AND l.publishedAt <= :end")
+    long countPublishedBySellerIdAndPublishedAtBetween(@Param("sellerId") Long sellerId,
+                                                         @Param("start") Instant start,
+                                                         @Param("end") Instant end);
+
+    @Query("SELECT COUNT(l) FROM Listing l WHERE l.seller.id = :sellerId " +
+            "AND l.closedAt >= :start AND l.closedAt <= :end")
+    long countClosedBySellerIdAndClosedAtBetween(@Param("sellerId") Long sellerId,
+                                                 @Param("start") Instant start,
+                                                 @Param("end") Instant end);
 }

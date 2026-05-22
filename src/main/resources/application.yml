@@ -34,3 +34,5 @@ app:
   listing:
     publication-days: 30
     archive-grace-days: 7
+  weekly-stats:
+    cron: "0 0 9 * * MON"

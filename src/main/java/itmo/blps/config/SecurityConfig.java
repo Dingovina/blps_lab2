@@ -36,6 +36,7 @@ public class SecurityConfig {
                 !uri.startsWith(apiPath + "seller") &&
                 !uri.startsWith(apiPath + "inquiries") &&
                 !uri.startsWith(apiPath + "notifications") &&
+                !uri.startsWith(apiPath + "weekly") &&
                 !uri.startsWith(apiPath + "admin") &&
                 !uri.startsWith(apiPath + "webhooks");
     }

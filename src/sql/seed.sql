@@ -10,12 +10,16 @@
 
 BEGIN;
 
-TRUNCATE TABLE cian_notifications,
+TRUNCATE TABLE cian_weekly_stats,
+              cian_notifications,
               cian_inquiries,
               cian_payments,
               cian_listings,
               cian_users
 RESTART IDENTITY CASCADE;
+
+-- Прошлая календарная неделя (пн 00:00 UTC) — для демо /api/weekly
+-- week_start = понедельник предыдущей ISO-недели
 
 -- ----- Пользователи -----
 INSERT INTO cian_users (id, email, password_hash, role, created_at) VALUES
@@ -50,7 +54,8 @@ INSERT INTO cian_listings (
   (2, 2, 'Топ: 3-к квартира у метро',
    'Ремонт, кухня-гостиная', 'Невский пр., 10', 'Санкт-Петербург',
    18500000.00, 78.0, 3, 'ACTIVE', 'TOP',
-   now() - interval '12 days', now() + interval '18 days', NULL, now() - interval '14 days'),
+   (date_trunc('week', (now() AT TIME ZONE 'UTC')) AT TIME ZONE 'UTC' - interval '7 days') + interval '2 days',
+   now() + interval '18 days', NULL, now() - interval '14 days'),
   (3, 2, 'Премиум: новостройка в центре',
    'Сдача в этом году', 'ул. Центральная, 5', 'Москва',
    24500000.00, 95.5, 4, 'ACTIVE', 'PREMIUM',
@@ -67,7 +72,8 @@ INSERT INTO cian_listings (
    'Сделка завершена', 'ул. Мира, 20', 'Москва',
    11200000.00, 60.0, 2, 'CLOSED', 'NONE',
    now() - interval '200 days', now() - interval '170 days',
-   now() - interval '30 days', now() - interval '201 days'),
+   (date_trunc('week', (now() AT TIME ZONE 'UTC')) AT TIME ZONE 'UTC' - interval '7 days') + interval '4 days',
+   now() - interval '201 days'),
   (7, 6, 'Скоро истекает срок (для напоминаний)',
    'Тест ARCHIVATION_SOON по сроку', 'пр-т Мира, 100', 'Москва',
    6700000.00, 42.0, 2, 'ACTIVE', 'NONE',
@@ -85,18 +91,27 @@ INSERT INTO cian_payments (
 -- ----- Обращения / показы -----
 INSERT INTO cian_inquiries (
   id, listing_id, buyer_id, message, status, scheduled_at, contact_info,
-  reject_reason, will_buy, created_at
+  reject_reason, will_buy, created_at, updated_at
 ) VALUES
   (1, 2, 4, 'Здравствуйте, хочу посмотреть в субботу.', 'PENDING',
-   NULL, NULL, NULL, NULL, now() - interval '3 days'),
+   NULL, NULL, NULL, NULL,
+   (date_trunc('week', (now() AT TIME ZONE 'UTC')) AT TIME ZONE 'UTC' - interval '7 days') + interval '1 day',
+   (date_trunc('week', (now() AT TIME ZONE 'UTC')) AT TIME ZONE 'UTC' - interval '7 days') + interval '1 day'),
   (2, 2, 5, 'Можно во вторник вечером?', 'SHOWING_SCHEDULED',
-   now() + interval '2 days', 'Позвоните: +7-900-000-00-02', NULL, NULL, now() - interval '2 days'),
+   now() + interval '2 days', 'Позвоните: +7-900-000-00-02', NULL, NULL,
+   (date_trunc('week', (now() AT TIME ZONE 'UTC')) AT TIME ZONE 'UTC' - interval '7 days') + interval '2 days',
+   (date_trunc('week', (now() AT TIME ZONE 'UTC')) AT TIME ZONE 'UTC' - interval '7 days') + interval '3 days'),
   (3, 3, 4, 'Интересует ипотека.', 'SHOWING_REJECTED',
-   NULL, NULL, 'Нет свободных слотов на этой неделе', NULL, now() - interval '5 days'),
-  (4, 4, 5, 'Готов приехать завтра.', 'COMPLETED',
-   now() - interval '3 days', 'WhatsApp в профиле', NULL, true, now() - interval '7 days'),
+   NULL, NULL, 'Нет свободных слотов на этой неделе', NULL,
+   (date_trunc('week', (now() AT TIME ZONE 'UTC')) AT TIME ZONE 'UTC' - interval '7 days') + interval '4 days',
+   (date_trunc('week', (now() AT TIME ZONE 'UTC')) AT TIME ZONE 'UTC' - interval '7 days') + interval '5 days'),
+  (4, 2, 4, 'Готов приехать завтра.', 'COMPLETED',
+   (date_trunc('week', (now() AT TIME ZONE 'UTC')) AT TIME ZONE 'UTC' - interval '7 days') + interval '5 days',
+   'WhatsApp в профиле', NULL, true,
+   (date_trunc('week', (now() AT TIME ZONE 'UTC')) AT TIME ZONE 'UTC' - interval '7 days') + interval '3 days',
+   (date_trunc('week', (now() AT TIME ZONE 'UTC')) AT TIME ZONE 'UTC' - interval '7 days') + interval '6 days'),
   (5, 7, 4, 'Есть ли торг?', 'PENDING',
-   NULL, NULL, NULL, NULL, now() - interval '6 hours');
+   NULL, NULL, NULL, NULL, now() - interval '6 hours', now() - interval '6 hours');
 
 -- ----- Уведомления -----
 INSERT INTO cian_notifications (

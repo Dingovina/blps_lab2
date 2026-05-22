@@ -49,6 +49,8 @@ public class InquiryService {
         inquiry.setBuyer(buyer);
         inquiry.setMessage(message);
         inquiry.setStatus(InquiryStatus.PENDING);
+        Instant now = Instant.now();
+        inquiry.setUpdatedAt(now);
         inquiry = inquiryRepository.save(inquiry);
         User seller = listing.getSeller();
         notificationService.create(
@@ -125,6 +127,7 @@ public class InquiryService {
         i.setStatus(InquiryStatus.SHOWING_SCHEDULED);
         i.setScheduledAt(scheduledAt);
         i.setContactInfo(contactInfo);
+        i.setUpdatedAt(Instant.now());
         i = inquiryRepository.save(i);
         User buyer = i.getBuyer();
         notificationService.create(
@@ -146,6 +149,7 @@ public class InquiryService {
         }
         i.setStatus(InquiryStatus.SHOWING_REJECTED);
         i.setRejectReason(reason);
+        i.setUpdatedAt(Instant.now());
         i = inquiryRepository.save(i);
         User buyer = i.getBuyer();
         notificationService.create(
@@ -167,6 +171,7 @@ public class InquiryService {
         }
         i.setStatus(InquiryStatus.COMPLETED);
         i.setWillBuy(Boolean.TRUE.equals(willBuy));
+        i.setUpdatedAt(Instant.now());
         i = inquiryRepository.save(i);
         if (Boolean.TRUE.equals(willBuy)) {
             User seller = i.getListing().getSeller();

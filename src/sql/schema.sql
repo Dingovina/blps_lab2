@@ -8,6 +8,7 @@
 -- ----- 1. Удаление существующих объектов (пересоздание) -----
 -- Порядок: таблицы (из‑за FK), затем типы
 
+DROP TABLE IF EXISTS cian_weekly_stats CASCADE;
 DROP TABLE IF EXISTS cian_notifications CASCADE;
 DROP TABLE IF EXISTS cian_inquiries CASCADE;
 DROP TABLE IF EXISTS cian_payments CASCADE;
@@ -76,7 +77,26 @@ CREATE TABLE cian_inquiries (
   contact_info  VARCHAR(500),
   reject_reason TEXT,
   will_buy      BOOLEAN,
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE cian_weekly_stats (
+  id                    BIGSERIAL PRIMARY KEY,
+  user_id               BIGINT NOT NULL REFERENCES cian_users(id) ON DELETE CASCADE,
+  role                  VARCHAR(50) NOT NULL,
+  period_start          TIMESTAMPTZ NOT NULL,
+  period_end            TIMESTAMPTZ NOT NULL,
+  published_listings    INTEGER,
+  closed_listings       INTEGER,
+  completed_inquiries   INTEGER,
+  scheduled_inquiries   INTEGER,
+  show_requests         INTEGER,
+  scheduled_showings    INTEGER,
+  rejected_showings     INTEGER,
+  completed_showings    INTEGER,
+  generated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, period_start)
 );
 
 CREATE TABLE cian_notifications (
@@ -104,6 +124,9 @@ CREATE INDEX idx_cian_payments_status ON cian_payments(status);
 CREATE INDEX idx_cian_inquiries_listing_id ON cian_inquiries(listing_id);
 CREATE INDEX idx_cian_inquiries_buyer_id ON cian_inquiries(buyer_id);
 CREATE INDEX idx_cian_inquiries_status ON cian_inquiries(status);
+CREATE INDEX idx_cian_inquiries_updated_at ON cian_inquiries(updated_at);
+
+CREATE INDEX idx_cian_weekly_stats_user_period ON cian_weekly_stats(user_id, period_start DESC);
 
 CREATE INDEX idx_cian_notifications_user_id ON cian_notifications(user_id);
 CREATE INDEX idx_cian_notifications_user_read ON cian_notifications(user_id, read);

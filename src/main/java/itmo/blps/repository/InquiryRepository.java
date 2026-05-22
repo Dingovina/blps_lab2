@@ -35,4 +35,24 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
                                   @Param("listingId") Long listingId,
                                   @Param("buyerId") Long buyerId,
                                   Pageable pageable);
+
+    @Query("SELECT COUNT(i) FROM Inquiry i WHERE i.listing.seller.id = :sellerId " +
+            "AND i.status = :status AND i.updatedAt >= :start AND i.updatedAt <= :end")
+    long countBySellerIdAndStatusAndUpdatedAtBetween(@Param("sellerId") Long sellerId,
+                                                     @Param("status") InquiryStatus status,
+                                                     @Param("start") java.time.Instant start,
+                                                     @Param("end") java.time.Instant end);
+
+    @Query("SELECT COUNT(i) FROM Inquiry i WHERE i.buyer.id = :buyerId " +
+            "AND i.createdAt >= :start AND i.createdAt <= :end")
+    long countByBuyerIdAndCreatedAtBetween(@Param("buyerId") Long buyerId,
+                                           @Param("start") java.time.Instant start,
+                                           @Param("end") java.time.Instant end);
+
+    @Query("SELECT COUNT(i) FROM Inquiry i WHERE i.buyer.id = :buyerId " +
+            "AND i.status = :status AND i.updatedAt >= :start AND i.updatedAt <= :end")
+    long countByBuyerIdAndStatusAndUpdatedAtBetween(@Param("buyerId") Long buyerId,
+                                                    @Param("status") InquiryStatus status,
+                                                    @Param("start") java.time.Instant start,
+                                                    @Param("end") java.time.Instant end);
 }

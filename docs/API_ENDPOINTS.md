@@ -606,6 +606,42 @@ Query: `page`, `size`, `status`, `listingId`.
 | GET  | `/api/admin/inquiries` | Список всех обращений (админ) |
 | GET  | `/api/admin/payments` | Список всех платежей (админ) |
 | PATCH| `/api/admin/listings/{listingId}/status` | Изменить статус объявления (админ) |
+| GET  | `/api/weekly` | Еженедельная статистика текущего пользователя (SELLER/BUYER) |
+
+---
+
+## Еженедельная статистика (лаб. 3)
+
+| Метод | Путь | Описание |
+|-------|------|----------|
+| GET | `/api/weekly` | Последний сохранённый отчёт за **прошлую календарную неделю** (пн–вс UTC) |
+
+**Авторизация:** HTTP Basic. Роли SELLER и BUYER. ADMIN → **403**.
+
+**Response 200 (SELLER):**
+
+```json
+{
+  "periodStart": "2026-05-11T00:00:00Z",
+  "periodEnd": "2026-05-17T23:59:59.999999999Z",
+  "role": "SELLER",
+  "publishedListings": 1,
+  "closedListings": 1,
+  "completedInquiries": 1,
+  "scheduledInquiries": 1,
+  "showRequests": null,
+  "scheduledShowings": null,
+  "rejectedShowings": null,
+  "completedShowings": null,
+  "generatedAt": "2026-05-22T09:00:00Z"
+}
+```
+
+**Response 200 (BUYER):** поля `showRequests`, `scheduledShowings`, `rejectedShowings`, `completedShowings`; seller-поля — `null`.
+
+**Response 404:** отчёт ещё не сформирован (планировщик/старт приложения не выполнялись).
+
+Отчёт создаётся при старте приложения и по cron `app.weekly-stats.cron` (по умолчанию понедельник 09:00 UTC).
 
 ---
 

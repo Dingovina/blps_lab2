@@ -54,6 +54,24 @@
 				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{buyer1_login}}"}, {"key": "password", "value": "{{buyer1_password}}"}]},
 				"url": {"raw": "{{url}}/api/auth/me", "host": ["{{url}}"], "path": ["api","auth","me"]}
 			}
+		},
+		{
+			"name": "Weekly stats (seller1)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{seller1_login}}"}, {"key": "password", "value": "{{seller1_password}}"}]},
+				"url": {"raw": "{{url}}/api/weekly", "host": ["{{url}}"], "path": ["api","weekly"]}
+			}
+		},
+		{
+			"name": "Weekly stats (buyer1)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"auth": {"type": "basic", "basic": [{"key": "username", "value": "{{buyer1_login}}"}, {"key": "password", "value": "{{buyer1_password}}"}]},
+				"url": {"raw": "{{url}}/api/weekly", "host": ["{{url}}"], "path": ["api","weekly"]}
+			}
 		}
 	]
 }
