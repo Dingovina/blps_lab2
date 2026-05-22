@@ -5,7 +5,10 @@
 ## Что получится
 
 - **PostgreSQL** — база с таблицами из `src/sql/schema.sql`
-- **Spring Boot** — API на порту **8080** (профиль `docker`, JDBC вместо JNDI)
+- **RabbitMQ** — очередь сообщений для асинхронной email-доставки уведомлений
+- **Mailpit** — локальный SMTP-сервер и web UI для проверки отправленных писем
+- **Spring Boot API** — основное приложение на порту **8080** (профиль `docker,api`, JDBC вместо JNDI)
+- **2 Spring Boot worker-узла** — получают уведомления из RabbitMQ через JMS и отправляют email через SMTP
 
 ## 1. Установить Docker
 
@@ -51,6 +54,13 @@ chmod +x docker/scripts/*.sh
 |-----|-----|
 | API (любой публичный endpoint) | http://localhost:8080/api/listings/search |
 | Swagger UI | http://localhost:8080/swagger-ui/index.html |
+| RabbitMQ Management | http://localhost:15672 |
+| Mailpit | http://localhost:8025 |
+
+RabbitMQ:
+
+- **Login:** `cian`
+- **Password:** `cian`
 
 Учётная запись администратора (создаётся при старте, если в БД ещё нет ADMIN):
 
@@ -68,8 +78,12 @@ curl -u admin@cian.local:admin123 http://localhost:8080/api/admin/users
 ## 6. Полезные команды
 
 ```bash
-# Логи приложения (Ctrl+C — выход)
+# Логи API и worker-узлов (Ctrl+C — выход)
 ./docker/scripts/logs.sh
+
+# Логи конкретного worker-узла
+./docker/scripts/logs.sh worker-1
+./docker/scripts/logs.sh worker-2
 
 # Остановить контейнеры (данные БД сохраняются)
 ./docker/scripts/down.sh
@@ -116,3 +130,13 @@ ports:
 | Деплой WAR | Запуск `bootJar` |
 
 Профиль Helios в `application.yml` не меняется; для Docker используется `application-docker.yml` (`SPRING_PROFILES_ACTIVE=docker`).
+
+## Асинхронные уведомления
+
+Основной контейнер `app` создаёт уведомление в таблице `cian_notifications`, поэтому личный кабинет продолжает работать через `GET /api/notifications`.
+
+После сохранения уведомления `app` публикует `NotificationEvent` в очередь RabbitMQ `cian.notifications` через JMS API (`JmsTemplate`).
+
+Контейнеры `worker-1` и `worker-2` запущены с профилем `worker`. Они слушают одну очередь через JMS (`@JmsListener`) и конкурируют за сообщения: каждое событие получает только один worker. Получив событие, worker отправляет письмо на email пользователя через SMTP.
+
+Локально SMTP принимает Mailpit. Откройте http://localhost:8025, чтобы увидеть реально отправленные письма без отправки во внешний интернет.

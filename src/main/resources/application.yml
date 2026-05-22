@@ -6,6 +6,17 @@ server:
 spring:
   application:
     name: cian
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:false}
+          starttls:
+            enable: ${MAIL_STARTTLS:false}
   datasource:
     jndi-name: java:/jdbc/studs
   jpa:
@@ -36,3 +47,14 @@ app:
     archive-grace-days: 7
   weekly-stats:
     cron: "0 0 9 * * MON"
+  messaging:
+    notifications-queue: ${NOTIFICATIONS_QUEUE:cian.notifications}
+    listener-concurrency: ${NOTIFICATIONS_LISTENER_CONCURRENCY:1}
+    rabbitmq:
+      host: ${RABBITMQ_HOST:localhost}
+      port: ${RABBITMQ_PORT:5672}
+      username: ${RABBITMQ_USER:cian}
+      password: ${RABBITMQ_PASSWORD:cian}
+      virtual-host: ${RABBITMQ_VHOST:/}
+  mail:
+    from: ${MAIL_FROM:no-reply@cian.local}

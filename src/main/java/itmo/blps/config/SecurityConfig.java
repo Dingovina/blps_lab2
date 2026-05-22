@@ -4,6 +4,7 @@ import itmo.blps.security.AppLoginModule;
 import itmo.blps.security.RoleAuthorityGranter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.jaas.AuthorityGranter;
 import org.springframework.security.authentication.jaas.DefaultJaasAuthenticationProvider;
 import org.springframework.security.authentication.jaas.memory.InMemoryConfiguration;
@@ -13,14 +14,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.security.auth.login.AppConfigurationEntry;
 import java.util.Collections;
 
 @Configuration
+@Profile("!worker")
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -77,10 +77,5 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .authenticationProvider(jaasAuthenticationProvider());
         return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

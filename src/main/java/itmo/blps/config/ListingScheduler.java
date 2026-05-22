@@ -8,6 +8,7 @@ import itmo.blps.repository.ListingRepository;
 import itmo.blps.repository.NotificationRepository;
 import itmo.blps.service.NotificationService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
+@Profile("!worker")
 public class ListingScheduler {
 
     private final ListingRepository listingRepository;
