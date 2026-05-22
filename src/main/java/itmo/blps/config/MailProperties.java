@@ -1,17 +1,13 @@
 package itmo.blps.config;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+@Getter
+@Setter
 @ConfigurationProperties(prefix = "app.mail")
 public class MailProperties {
 
     private String from;
-
-    public String getFrom() {
-        return from;
-    }
-
-    public void setFrom(String from) {
-        this.from = from;
-    }
 }
