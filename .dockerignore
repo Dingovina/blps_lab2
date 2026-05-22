@@ -1,0 +1,12 @@
+.git
+.gradle
+build
+bin
+out
+.idea
+.vscode
+wildfly
+docs
+*.md
+.env
+**/*.iml

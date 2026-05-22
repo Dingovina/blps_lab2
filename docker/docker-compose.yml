@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: cian-db
+    environment:
+      POSTGRES_DB: cian
+      POSTGRES_USER: cian
+      POSTGRES_PASSWORD: cian
+    ports:
+      - "5433:5432"
+    volumes:
+      - cian_pgdata:/var/lib/postgresql/data
+      - ../src/sql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ../src/sql/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cian -d cian"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: cian-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: cian
+      DB_USER: cian
+      DB_PASSWORD: cian
+      JWT_SECRET: docker-dev-secret
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  cian_pgdata:

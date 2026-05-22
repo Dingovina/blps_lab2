@@ -1,0 +1,18 @@
+# Профиль для локального запуска в Docker (PostgreSQL + встроенный Tomcat).
+# Активируется: SPRING_PROFILES_ACTIVE=docker
+
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.jdbc.autoconfigure.JndiDataSourceAutoConfiguration
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:db}:${DB_PORT:5432}/${DB_NAME:cian}
+    username: ${DB_USER:cian}
+    password: ${DB_PASSWORD:cian}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    properties:
+      hibernate:
+        default_schema: public
+    hibernate:
+      ddl-auto: validate
