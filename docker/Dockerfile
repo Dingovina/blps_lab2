@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY gradlew gradlew.bat settings.gradle build.gradle ./
 COPY gradle ./gradle
+COPY bitrix-jca-ra ./bitrix-jca-ra
 COPY src ./src
 
 RUN chmod +x gradlew \

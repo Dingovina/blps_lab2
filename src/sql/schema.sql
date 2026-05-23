@@ -8,6 +8,7 @@
 -- ----- 1. Удаление существующих объектов (пересоздание) -----
 -- Порядок: таблицы (из‑за FK), затем типы
 
+DROP TABLE IF EXISTS cian_crm_links CASCADE;
 DROP TABLE IF EXISTS cian_weekly_stats CASCADE;
 DROP TABLE IF EXISTS cian_notifications CASCADE;
 DROP TABLE IF EXISTS cian_inquiries CASCADE;
@@ -81,6 +82,16 @@ CREATE TABLE cian_inquiries (
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE cian_crm_links (
+  id            BIGSERIAL PRIMARY KEY,
+  entity_type   VARCHAR(50) NOT NULL,
+  local_id      BIGINT NOT NULL,
+  bitrix_id     INTEGER NOT NULL,
+  last_sync_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (entity_type, local_id),
+  UNIQUE (entity_type, bitrix_id)
+);
+
 CREATE TABLE cian_weekly_stats (
   id                    BIGSERIAL PRIMARY KEY,
   user_id               BIGINT NOT NULL REFERENCES cian_users(id) ON DELETE CASCADE,
@@ -125,6 +136,9 @@ CREATE INDEX idx_cian_inquiries_listing_id ON cian_inquiries(listing_id);
 CREATE INDEX idx_cian_inquiries_buyer_id ON cian_inquiries(buyer_id);
 CREATE INDEX idx_cian_inquiries_status ON cian_inquiries(status);
 CREATE INDEX idx_cian_inquiries_updated_at ON cian_inquiries(updated_at);
+
+CREATE INDEX idx_cian_crm_links_entity_local ON cian_crm_links(entity_type, local_id);
+CREATE INDEX idx_cian_crm_links_bitrix ON cian_crm_links(entity_type, bitrix_id);
 
 CREATE INDEX idx_cian_weekly_stats_user_period ON cian_weekly_stats(user_id, period_start DESC);
 

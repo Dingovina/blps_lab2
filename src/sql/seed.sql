@@ -14,6 +14,7 @@ TRUNCATE TABLE cian_weekly_stats,
               cian_notifications,
               cian_inquiries,
               cian_payments,
+              cian_crm_links,
               cian_listings,
               cian_users
 RESTART IDENTITY CASCADE;

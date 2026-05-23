@@ -5,8 +5,11 @@ import itmo.blps.entity.*;
 import itmo.blps.exception.BadRequestException;
 import itmo.blps.exception.ForbiddenException;
 import itmo.blps.exception.ResourceNotFoundException;
+import itmo.blps.integration.crm.CrmSyncHelper;
+import itmo.blps.integration.crm.CrmSyncService;
 import itmo.blps.repository.ListingRepository;
 import itmo.blps.specification.ListingSpecification;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,10 +27,17 @@ public class ListingService {
 
     private final ListingRepository listingRepository;
     private final NotificationService notificationService;
+    private final CrmSyncHelper crmSyncHelper;
+    private final CrmSyncService crmSyncService;
 
-    public ListingService(ListingRepository listingRepository, NotificationService notificationService) {
+    public ListingService(ListingRepository listingRepository,
+                          NotificationService notificationService,
+                          CrmSyncHelper crmSyncHelper,
+                          @Autowired(required = false) CrmSyncService crmSyncService) {
         this.listingRepository = listingRepository;
         this.notificationService = notificationService;
+        this.crmSyncHelper = crmSyncHelper;
+        this.crmSyncService = crmSyncService;
     }
 
     @Transactional
@@ -37,7 +47,10 @@ public class ListingService {
         mapRequestToListing(request, l);
         l.setStatus(ListingStatus.DRAFT);
         l.setPromotion(PromotionType.NONE);
-        return listingRepository.save(l);
+        l = listingRepository.save(l);
+        final Listing created = l;
+        crmSyncHelper.afterCommit(() -> crmSyncService.syncListingStatus(created), crmSyncService);
+        return l;
     }
 
     @Transactional
@@ -47,7 +60,10 @@ public class ListingService {
             throw new BadRequestException("Only DRAFT or ACTIVE listings can be updated");
         }
         mapRequestToListing(request, l);
-        return listingRepository.save(l);
+        l = listingRepository.save(l);
+        final Listing updated = l;
+        crmSyncHelper.afterCommit(() -> crmSyncService.syncListingStatus(updated), crmSyncService);
+        return l;
     }
 
     public Listing getById(Long id) {
@@ -95,6 +111,8 @@ public class ListingService {
                 RelatedEntityType.LISTING,
                 l.getId()
         );
+        final Listing published = l;
+        crmSyncHelper.afterCommit(() -> crmSyncService.syncListingStatus(published), crmSyncService);
         return l;
     }
 
@@ -118,7 +136,9 @@ public class ListingService {
             );
         } else {
             l.setStatus(ListingStatus.ARCHIVED);
-            listingRepository.save(l);
+            final Listing archived = listingRepository.save(l);
+            crmSyncHelper.afterCommit(() -> crmSyncService.syncListingStatus(archived), crmSyncService);
+            return archived;
         }
         return l;
     }
@@ -137,6 +157,8 @@ public class ListingService {
                 RelatedEntityType.LISTING,
                 l.getId()
         );
+        final Listing closed = l;
+        crmSyncHelper.afterCommit(() -> crmSyncService.syncListingStatus(closed), crmSyncService);
         return l;
     }
 
@@ -169,6 +191,8 @@ public class ListingService {
                     l.getId()
             );
         }
+        final Listing updated = l;
+        crmSyncHelper.afterCommit(() -> crmSyncService.syncListingStatus(updated), crmSyncService);
         return l;
     }
 

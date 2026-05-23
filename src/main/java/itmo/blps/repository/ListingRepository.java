@@ -15,6 +15,8 @@ import java.util.List;
 
 public interface ListingRepository extends JpaRepository<Listing, Long>, JpaSpecificationExecutor<Listing> {
 
+    List<Listing> findByStatusNot(ListingStatus status);
+
     List<Listing> findByStatusAndExpiresAtBefore(ListingStatus status, Instant expiresAt);
 
     Page<Listing> findBySellerId(Long sellerId, Pageable pageable);

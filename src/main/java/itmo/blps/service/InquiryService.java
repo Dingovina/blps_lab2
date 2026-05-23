@@ -4,7 +4,10 @@ import itmo.blps.entity.*;
 import itmo.blps.exception.BadRequestException;
 import itmo.blps.exception.ForbiddenException;
 import itmo.blps.exception.ResourceNotFoundException;
+import itmo.blps.integration.crm.CrmSyncHelper;
+import itmo.blps.integration.crm.CrmSyncService;
 import itmo.blps.repository.InquiryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import itmo.blps.repository.ListingRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,13 +22,19 @@ public class InquiryService {
     private final InquiryRepository inquiryRepository;
     private final ListingRepository listingRepository;
     private final NotificationService notificationService;
+    private final CrmSyncHelper crmSyncHelper;
+    private final CrmSyncService crmSyncService;
 
     public InquiryService(InquiryRepository inquiryRepository,
                           ListingRepository listingRepository,
-                          NotificationService notificationService) {
+                          NotificationService notificationService,
+                          CrmSyncHelper crmSyncHelper,
+                          @Autowired(required = false) CrmSyncService crmSyncService) {
         this.inquiryRepository = inquiryRepository;
         this.listingRepository = listingRepository;
         this.notificationService = notificationService;
+        this.crmSyncHelper = crmSyncHelper;
+        this.crmSyncService = crmSyncService;
     }
 
     @Transactional
@@ -61,6 +70,8 @@ public class InquiryService {
                 RelatedEntityType.INQUIRY,
                 inquiry.getId()
         );
+        final Inquiry savedInquiry = inquiry;
+        crmSyncHelper.afterCommit(() -> crmSyncService.syncInquiryCreated(savedInquiry), crmSyncService);
         return inquiry;
     }
 

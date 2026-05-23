@@ -4,7 +4,10 @@ import itmo.blps.entity.*;
 import itmo.blps.exception.BadRequestException;
 import itmo.blps.exception.ForbiddenException;
 import itmo.blps.exception.ResourceNotFoundException;
+import itmo.blps.integration.crm.CrmSyncHelper;
+import itmo.blps.integration.crm.CrmSyncService;
 import itmo.blps.repository.ListingRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import itmo.blps.repository.PaymentRepository;
 import itmo.blps.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -21,15 +24,21 @@ public class PaymentService {
     private final ListingRepository listingRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final CrmSyncHelper crmSyncHelper;
+    private final CrmSyncService crmSyncService;
 
     public PaymentService(PaymentRepository paymentRepository,
                           ListingRepository listingRepository,
                           UserRepository userRepository,
-                          NotificationService notificationService) {
+                          NotificationService notificationService,
+                          CrmSyncHelper crmSyncHelper,
+                          @Autowired(required = false) CrmSyncService crmSyncService) {
         this.paymentRepository = paymentRepository;
         this.listingRepository = listingRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.crmSyncHelper = crmSyncHelper;
+        this.crmSyncService = crmSyncService;
     }
 
     @Transactional
@@ -69,6 +78,8 @@ public class PaymentService {
                     RelatedEntityType.PAYMENT,
                     payment.getId()
             );
+            final Listing promotedListing = listing;
+            crmSyncHelper.afterCommit(() -> crmSyncService.syncListingPromotion(promotedListing), crmSyncService);
             return new PaymentResult(payment.getId(), PaymentStatus.SUCCESS, "Оплата прошла успешно");
         } else {
             payment.setStatus(PaymentStatus.FAILED);

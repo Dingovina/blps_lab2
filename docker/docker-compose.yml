@@ -58,7 +58,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: docker,api
+      SPRING_PROFILES_ACTIVE: docker,api,bitrix
       DB_HOST: db
       DB_PORT: "5432"
       DB_NAME: cian
@@ -72,6 +72,9 @@ services:
       MAIL_PORT: "1025"
       MAIL_FROM: no-reply@cian.local
       JWT_SECRET: docker-dev-secret
+      BITRIX_REST_BASE_URL: ${BITRIX_REST_BASE_URL:-}
+      BITRIX_POLLING_INTERVAL_SECONDS: ${BITRIX_POLLING_INTERVAL_SECONDS:-20}
+      BITRIX_DEAL_CATEGORY_ID: ${BITRIX_DEAL_CATEGORY_ID:-0}
     depends_on:
       db:
         condition: service_healthy
