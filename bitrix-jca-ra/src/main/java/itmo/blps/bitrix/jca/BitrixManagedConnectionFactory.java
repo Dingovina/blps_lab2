@@ -12,16 +12,16 @@ import javax.naming.Reference;
 import javax.naming.Referenceable;
 import javax.security.auth.Subject;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.util.Set;
 
-public class BitrixManagedConnectionFactory implements ManagedConnectionFactory, Serializable, Referenceable {
-
-    private static final long serialVersionUID = 1L;
+public class BitrixManagedConnectionFactory implements ManagedConnectionFactory, Referenceable {
 
     private String restBaseUrl;
     private String dealFieldListingId = "UF_CRM_1779488860318";
     private String dealFieldPromotion = "UF_CRM_1779488339299";
+    private String dealFieldAddress = "UF_CRM_1779544026161";
+    private String dealFieldArea = "UF_CRM_1779543509002";
+    private String dealFieldRooms = "UF_CRM_1779543524624";
     private int dealCategoryId = 0;
     private PrintWriter logWriter;
 
@@ -36,7 +36,8 @@ public class BitrixManagedConnectionFactory implements ManagedConnectionFactory,
     public ManagedConnection createManagedConnection(Subject subject, ConnectionRequestInfo cxRequestInfo)
             throws ResourceException {
         BitrixRestClient client = new BitrixRestClient(restBaseUrl);
-        BitrixConnectionImpl connection = new BitrixConnectionImpl(client, dealFieldListingId, dealFieldPromotion);
+        BitrixConnectionImpl connection = new BitrixConnectionImpl(
+                client, dealFieldListingId, dealFieldPromotion, dealFieldAddress, dealFieldArea, dealFieldRooms);
         return new BitrixManagedConnection(this, connection);
     }
 
@@ -114,5 +115,29 @@ public class BitrixManagedConnectionFactory implements ManagedConnectionFactory,
 
     public void setDealCategoryId(int dealCategoryId) {
         this.dealCategoryId = dealCategoryId;
+    }
+
+    public String getDealFieldAddress() {
+        return dealFieldAddress;
+    }
+
+    public void setDealFieldAddress(String dealFieldAddress) {
+        this.dealFieldAddress = dealFieldAddress;
+    }
+
+    public String getDealFieldArea() {
+        return dealFieldArea;
+    }
+
+    public void setDealFieldArea(String dealFieldArea) {
+        this.dealFieldArea = dealFieldArea;
+    }
+
+    public String getDealFieldRooms() {
+        return dealFieldRooms;
+    }
+
+    public void setDealFieldRooms(String dealFieldRooms) {
+        this.dealFieldRooms = dealFieldRooms;
     }
 }

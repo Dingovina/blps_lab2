@@ -3,7 +3,6 @@ package itmo.blps.bitrix.jca;
 import com.fasterxml.jackson.databind.JsonNode;
 import itmo.blps.bitrix.jca.model.BitrixDealSnapshot;
 import itmo.blps.bitrix.jca.rest.BitrixRestClient;
-import jakarta.resource.ResourceException;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -22,12 +21,23 @@ public class BitrixConnectionImpl implements BitrixConnection {
     private final BitrixRestClient client;
     private final String dealFieldListingId;
     private final String dealFieldPromotion;
+    private final String dealFieldAddress;
+    private final String dealFieldArea;
+    private final String dealFieldRooms;
     private volatile boolean closed;
 
-    public BitrixConnectionImpl(BitrixRestClient client, String dealFieldListingId, String dealFieldPromotion) {
+    public BitrixConnectionImpl(BitrixRestClient client,
+                                String dealFieldListingId,
+                                String dealFieldPromotion,
+                                String dealFieldAddress,
+                                String dealFieldArea,
+                                String dealFieldRooms) {
         this.client = client;
         this.dealFieldListingId = dealFieldListingId;
         this.dealFieldPromotion = dealFieldPromotion;
+        this.dealFieldAddress = dealFieldAddress;
+        this.dealFieldArea = dealFieldArea;
+        this.dealFieldRooms = dealFieldRooms;
     }
 
     @Override
@@ -113,7 +123,14 @@ public class BitrixConnectionImpl implements BitrixConnection {
             }
             Map<String, Object> params = new HashMap<>();
             params.put("filter", filter);
-            params.put("select", List.of("ID", "TITLE", "STAGE_ID", "DATE_MODIFY", dealFieldListingId, dealFieldPromotion));
+            List<String> select = new ArrayList<>(List.of(
+                    "ID", "TITLE", "STAGE_ID", "DATE_MODIFY", "OPPORTUNITY", "COMMENTS"));
+            addSelectField(select, dealFieldListingId);
+            addSelectField(select, dealFieldPromotion);
+            addSelectField(select, dealFieldAddress);
+            addSelectField(select, dealFieldArea);
+            addSelectField(select, dealFieldRooms);
+            params.put("select", select);
             params.put("order", Map.of("DATE_MODIFY", "ASC"));
 
             List<BitrixDealSnapshot> deals = new ArrayList<>();
@@ -187,6 +204,12 @@ public class BitrixConnectionImpl implements BitrixConnection {
         return new BitrixDealSnapshot(id, stageId, title, dateModify, fields);
     }
 
+    private static void addSelectField(List<String> select, String fieldName) {
+        if (fieldName != null && !fieldName.isBlank() && !select.contains(fieldName)) {
+            select.add(fieldName);
+        }
+    }
+
     private static Object jsonToObject(JsonNode node) {
         if (node == null || node.isNull()) {
             return null;
@@ -199,6 +222,15 @@ public class BitrixConnectionImpl implements BitrixConnection {
         }
         if (node.isTextual()) {
             return node.asText();
+        }
+        if (node.isObject()) {
+            Map<String, Object> map = new HashMap<>();
+            Iterator<Map.Entry<String, JsonNode>> it = node.fields();
+            while (it.hasNext()) {
+                Map.Entry<String, JsonNode> e = it.next();
+                map.put(e.getKey(), jsonToObject(e.getValue()));
+            }
+            return map;
         }
         return node.toString();
     }

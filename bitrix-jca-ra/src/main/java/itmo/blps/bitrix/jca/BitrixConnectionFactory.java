@@ -10,12 +10,8 @@ import jakarta.resource.cci.ResourceAdapterMetaData;
 import jakarta.resource.spi.ConnectionManager;
 
 import javax.naming.Reference;
-import javax.naming.Referenceable;
-import java.io.Serializable;
 
-public class BitrixConnectionFactory implements BitrixConnectionFactoryInterface, ConnectionFactory, Serializable, Referenceable {
-
-    private static final long serialVersionUID = 1L;
+public class BitrixConnectionFactory implements BitrixConnectionFactoryInterface, ConnectionFactory {
 
     private final BitrixManagedConnectionFactory mcf;
     private final ConnectionManager connectionManager;

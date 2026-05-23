@@ -32,6 +32,9 @@ public class BitrixJcaConfig {
                 properties.getRestBaseUrl(),
                 properties.getDealFieldListingId(),
                 properties.getDealFieldPromotion(),
+                properties.getDealFieldAddress(),
+                properties.getDealFieldArea(),
+                properties.getDealFieldRooms(),
                 properties.getDealCategoryId()
         );
         log.info("Bitrix JCA embedded container created");

@@ -11,6 +11,9 @@ public class BitrixProperties {
     private int dealCategoryId;
     private String dealFieldListingId;
     private String dealFieldPromotion;
+    private String dealFieldAddress;
+    private String dealFieldArea;
+    private String dealFieldRooms;
     private String stagePublish;
     private String stageActive;
     private String stageClosed;
@@ -63,6 +66,30 @@ public class BitrixProperties {
 
     public void setDealFieldPromotion(String dealFieldPromotion) {
         this.dealFieldPromotion = dealFieldPromotion;
+    }
+
+    public String getDealFieldAddress() {
+        return dealFieldAddress;
+    }
+
+    public void setDealFieldAddress(String dealFieldAddress) {
+        this.dealFieldAddress = dealFieldAddress;
+    }
+
+    public String getDealFieldArea() {
+        return dealFieldArea;
+    }
+
+    public void setDealFieldArea(String dealFieldArea) {
+        this.dealFieldArea = dealFieldArea;
+    }
+
+    public String getDealFieldRooms() {
+        return dealFieldRooms;
+    }
+
+    public void setDealFieldRooms(String dealFieldRooms) {
+        this.dealFieldRooms = dealFieldRooms;
     }
 
     public String getStagePublish() {

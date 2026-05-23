@@ -5,8 +5,13 @@ app:
     rest-base-url: ${BITRIX_REST_BASE_URL:}
     polling-interval-seconds: ${BITRIX_POLLING_INTERVAL_SECONDS:20}
     deal-category-id: ${BITRIX_DEAL_CATEGORY_ID:0}
+
     deal-field-listing-id: ${BITRIX_DEAL_FIELD_LISTING_ID:UF_CRM_1779488860318}
     deal-field-promotion: ${BITRIX_DEAL_FIELD_PROMOTION:UF_CRM_1779488339299}
+    deal-field-address: ${BITRIX_DEAL_FIELD_ADDRESS:UF_CRM_1779544026161}
+    deal-field-area: ${BITRIX_DEAL_FIELD_AREA:UF_CRM_1779543509002}
+    deal-field-rooms: ${BITRIX_DEAL_FIELD_ROOMS:UF_CRM_1779543524624}
+
     stage-publish: ${BITRIX_STAGE_PUBLISH:NEW}
     stage-active: ${BITRIX_STAGE_ACTIVE:EXECUTING}
     stage-closed: ${BITRIX_STAGE_CLOSED:WON}

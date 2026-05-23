@@ -23,10 +23,16 @@ public class BitrixJcaEmbeddedContainer implements AutoCloseable {
     public BitrixJcaEmbeddedContainer(String restBaseUrl,
                                       String dealFieldListingId,
                                       String dealFieldPromotion,
+                                      String dealFieldAddress,
+                                      String dealFieldArea,
+                                      String dealFieldRooms,
                                       int dealCategoryId) throws ResourceException {
         managedConnectionFactory = new BitrixManagedConnectionFactory(restBaseUrl);
         managedConnectionFactory.setDealFieldListingId(dealFieldListingId);
         managedConnectionFactory.setDealFieldPromotion(dealFieldPromotion);
+        managedConnectionFactory.setDealFieldAddress(dealFieldAddress);
+        managedConnectionFactory.setDealFieldArea(dealFieldArea);
+        managedConnectionFactory.setDealFieldRooms(dealFieldRooms);
         managedConnectionFactory.setDealCategoryId(dealCategoryId);
 
         resourceAdapter = new BitrixResourceAdapter();

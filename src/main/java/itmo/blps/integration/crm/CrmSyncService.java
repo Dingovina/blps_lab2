@@ -22,9 +22,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -171,20 +173,123 @@ public class CrmSyncService {
         }
 
         listingRepository.findById(listingId).ifPresent(listing -> {
-            ListingStatus newStatus = statusForStage(deal.getStageId());
-            if (newStatus != null && listing.getStatus() != newStatus) {
-                BitrixSyncContext.runInbound(() -> {
-                    listing.setStatus(newStatus);
-                    if (newStatus == ListingStatus.CLOSED && listing.getClosedAt() == null) {
-                        listing.setClosedAt(Instant.now());
-                    }
+            BitrixSyncContext.runInbound(() -> {
+                boolean statusChanged = applyInboundStatus(listing, deal);
+                boolean priceChanged = applyInboundPrice(listing, deal);
+                boolean descriptionChanged = applyInboundDescription(listing, deal);
+                boolean addressChanged = applyInboundAddress(listing, deal);
+                boolean areaChanged = applyInboundArea(listing, deal);
+                boolean roomsChanged = applyInboundRooms(listing, deal);
+                if (statusChanged || priceChanged || descriptionChanged
+                        || addressChanged || areaChanged || roomsChanged) {
                     listingRepository.save(listing);
-                    log.info("Inbound Bitrix: listing {} status -> {}", listingId, newStatus);
-                });
-            }
+                    if (statusChanged) {
+                        log.info("Inbound Bitrix: listing {} status -> {}", listingId, listing.getStatus());
+                    }
+                    if (priceChanged) {
+                        log.info("Inbound Bitrix: listing {} price -> {}", listingId, listing.getPrice());
+                    }
+                    if (descriptionChanged) {
+                        log.info("Inbound Bitrix: listing {} description updated", listingId);
+                    }
+                    if (addressChanged) {
+                        log.info("Inbound Bitrix: listing {} address -> {}", listingId, listing.getAddress());
+                    }
+                    if (areaChanged) {
+                        log.info("Inbound Bitrix: listing {} area -> {}", listingId, listing.getAreaSqm());
+                    }
+                    if (roomsChanged) {
+                        log.info("Inbound Bitrix: listing {} rooms -> {}", listingId, listing.getRooms());
+                    }
+                }
+            });
             crmLinkRepository.findByEntityTypeAndLocalId(CrmEntityType.LISTING, listingId)
                     .ifPresent(this::touchLink);
         });
+    }
+
+    private boolean applyInboundStatus(Listing listing, BitrixDealSnapshot deal) {
+        ListingStatus newStatus = statusForStage(deal.getStageId());
+        if (newStatus == null || listing.getStatus() == newStatus) {
+            return false;
+        }
+        listing.setStatus(newStatus);
+        if (newStatus == ListingStatus.CLOSED && listing.getClosedAt() == null) {
+            listing.setClosedAt(Instant.now());
+        }
+        return true;
+    }
+
+    private boolean applyInboundPrice(Listing listing, BitrixDealSnapshot deal) {
+        if (deal.getFields() == null || !deal.getFields().containsKey("OPPORTUNITY")) {
+            return false;
+        }
+        BigDecimal incoming = toBigDecimal(deal.getField("OPPORTUNITY"));
+        if (incoming == null || listing.getPrice().compareTo(incoming) == 0) {
+            return false;
+        }
+        listing.setPrice(incoming);
+        return true;
+    }
+
+    private boolean applyInboundDescription(Listing listing, BitrixDealSnapshot deal) {
+        if (deal.getFields() == null || !deal.getFields().containsKey("COMMENTS")) {
+            return false;
+        }
+        Object raw = deal.getField("COMMENTS");
+        String normalized = raw == null || raw.toString().isBlank() ? null : raw.toString();
+        if (Objects.equals(listing.getDescription(), normalized)) {
+            return false;
+        }
+        listing.setDescription(normalized);
+        return true;
+    }
+
+    private boolean applyInboundAddress(Listing listing, BitrixDealSnapshot deal) {
+        String field = properties.getDealFieldAddress();
+        if (field == null || deal.getFields() == null || !deal.getFields().containsKey(field)) {
+            return false;
+        }
+        Object raw = deal.getField(field);
+        String incoming = raw == null || raw.toString().isBlank() ? null : raw.toString();
+        if (Objects.equals(listing.getAddress(), incoming)) {
+            return false;
+        }
+        listing.setAddress(incoming);
+        return true;
+    }
+
+    private boolean applyInboundArea(Listing listing, BitrixDealSnapshot deal) {
+        String field = properties.getDealFieldArea();
+        if (field == null || deal.getFields() == null || !deal.getFields().containsKey(field)) {
+            return false;
+        }
+        BigDecimal incoming = toBigDecimal(deal.getField(field));
+        if (incoming == null) {
+            return false;
+        }
+        if (listing.getAreaSqm() != null && listing.getAreaSqm().compareTo(incoming) == 0) {
+            return false;
+        }
+        listing.setAreaSqm(incoming);
+        return true;
+    }
+
+    private boolean applyInboundRooms(Listing listing, BitrixDealSnapshot deal) {
+        String field = properties.getDealFieldRooms();
+        if (field == null || deal.getFields() == null || !deal.getFields().containsKey(field)) {
+            return false;
+        }
+        BigDecimal incoming = toBigDecimal(deal.getField(field));
+        if (incoming == null) {
+            return false;
+        }
+        int rooms = incoming.intValue();
+        if (listing.getRooms() != null && listing.getRooms() == rooms) {
+            return false;
+        }
+        listing.setRooms(rooms);
+        return true;
     }
 
     private void upsertDealForListing(BitrixConnection conn, Listing managed) throws ResourceException {
@@ -224,7 +329,22 @@ public class CrmSyncService {
         if (listing.getDescription() != null) {
             fields.put("COMMENTS", listing.getDescription());
         }
+        putListingCustomFields(fields, listing);
         return fields;
+    }
+
+    private void putListingCustomFields(Map<String, Object> fields, Listing listing) {
+        if (properties.getDealFieldArea() != null && listing.getAreaSqm() != null) {
+            fields.put(properties.getDealFieldArea(), listing.getAreaSqm());
+        }
+        if (properties.getDealFieldRooms() != null && listing.getRooms() != null) {
+            fields.put(properties.getDealFieldRooms(), listing.getRooms().doubleValue());
+        }
+        if (properties.getDealFieldAddress() != null
+                && listing.getAddress() != null
+                && !listing.getAddress().isBlank()) {
+            fields.put(properties.getDealFieldAddress(), listing.getAddress());
+        }
     }
 
     private String stageForStatus(ListingStatus status) {
@@ -264,6 +384,19 @@ public class CrmSyncService {
             return n.longValue();
         }
         return Long.parseLong(value.toString());
+    }
+
+    private static BigDecimal toBigDecimal(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof BigDecimal bd) {
+            return bd;
+        }
+        if (value instanceof Number n) {
+            return BigDecimal.valueOf(n.doubleValue());
+        }
+        return new BigDecimal(value.toString());
     }
 
     private void runWithConnection(ConnectionConsumer consumer) {
