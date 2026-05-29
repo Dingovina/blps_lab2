@@ -106,6 +106,9 @@ public class BitrixConnectionImpl implements BitrixConnection {
             }
             return Optional.of(toSnapshot(result));
         } catch (Exception e) {
+            if (BitrixDealErrors.isNotFound(e)) {
+                return Optional.empty();
+            }
             throw new BitrixConnectionException("crm.deal.get failed", e);
         }
     }
@@ -153,23 +156,6 @@ public class BitrixConnectionImpl implements BitrixConnection {
             return deals;
         } catch (Exception e) {
             throw new BitrixConnectionException("crm.deal.list failed", e);
-        }
-    }
-
-    @Override
-    public int addDealActivity(int dealId, String subject, String description) {
-        try {
-            Map<String, Object> fields = new HashMap<>();
-            fields.put("OWNER_TYPE_ID", 2);
-            fields.put("OWNER_ID", dealId);
-            fields.put("TYPE_ID", 1);
-            fields.put("SUBJECT", subject);
-            fields.put("DESCRIPTION", description);
-            fields.put("COMPLETED", "N");
-            JsonNode root = client.call("crm.activity.add", BitrixRestClient.fields(fields));
-            return root.get("result").asInt();
-        } catch (Exception e) {
-            throw new BitrixConnectionException("crm.activity.add failed", e);
         }
     }
 

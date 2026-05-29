@@ -119,11 +119,35 @@ public class BitrixResourceAdapter implements ResourceAdapter {
             if (!deals.isEmpty()) {
                 lastPollWatermark = maxModify;
             }
+            deliverPollCycleComplete(holder);
         } catch (Exception e) {
             log(Level.WARNING, "Bitrix inbound poll failed: " + e.getMessage());
         } finally {
             if (conn != null) {
                 conn.close();
+            }
+        }
+    }
+
+    private void deliverPollCycleComplete(EndpointHolder holder) {
+        MessageEndpoint endpoint = null;
+        try {
+            endpoint = holder.factory.createEndpoint(null);
+            endpoint.beforeDelivery(BitrixEventListener.class.getMethod("onPollCycleComplete"));
+            BitrixEventListener listener = (BitrixEventListener) endpoint;
+            listener.onPollCycleComplete();
+        } catch (Exception e) {
+            log(Level.WARNING, "Failed to deliver Bitrix poll cycle event: " + e.getMessage());
+        } finally {
+            if (endpoint != null) {
+                try {
+                    endpoint.afterDelivery();
+                } catch (Exception ignored) {
+                }
+                try {
+                    endpoint.release();
+                } catch (Exception ignored) {
+                }
             }
         }
     }

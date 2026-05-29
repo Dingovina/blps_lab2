@@ -111,6 +111,10 @@ public class BitrixJcaEmbeddedContainer implements AutoCloseable {
                 delegate.onDealUpdated((itmo.blps.bitrix.jca.BitrixEventRecord) args[0]);
                 return null;
             }
+            if ("onPollCycleComplete".equals(name)) {
+                delegate.onPollCycleComplete();
+                return null;
+            }
             if ("beforeDelivery".equals(name) || "afterDelivery".equals(name) || "release".equals(name)) {
                 return null;
             }

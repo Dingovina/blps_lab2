@@ -7,7 +7,8 @@ COPY gradle ./gradle
 COPY bitrix-jca-ra ./bitrix-jca-ra
 COPY src ./src
 
-RUN chmod +x gradlew \
+RUN --mount=type=cache,target=/root/.gradle \
+    chmod +x gradlew \
     && ./gradlew bootJar -PdockerBuild=true --no-daemon -x test
 
 FROM eclipse-temurin:17-jre-alpine

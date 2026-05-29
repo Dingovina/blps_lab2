@@ -35,5 +35,6 @@ public class BitrixStartupBackfill {
         }
         log.info("Starting Bitrix startup backfill...");
         crmSyncService.backfillExistingData();
+        crmSyncService.reconcileDeletedDeals();
     }
 }

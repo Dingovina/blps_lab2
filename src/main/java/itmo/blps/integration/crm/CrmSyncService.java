@@ -2,19 +2,21 @@ package itmo.blps.integration.crm;
 
 import itmo.blps.bitrix.jca.BitrixConnection;
 import itmo.blps.bitrix.jca.BitrixConnectionFactoryInterface;
+import itmo.blps.bitrix.jca.BitrixDealErrors;
 import itmo.blps.bitrix.jca.BitrixEventRecord;
 import itmo.blps.bitrix.jca.model.BitrixDealSnapshot;
 import itmo.blps.config.BitrixProperties;
+import itmo.blps.dto.ListingCreateRequest;
 import itmo.blps.entity.CrmLink;
-import itmo.blps.entity.Inquiry;
 import itmo.blps.entity.Listing;
 import itmo.blps.entity.ListingStatus;
 import itmo.blps.entity.PromotionType;
 import itmo.blps.entity.User;
 import itmo.blps.repository.CrmLinkRepository;
-import itmo.blps.repository.InquiryRepository;
 import itmo.blps.repository.ListingRepository;
 import jakarta.resource.ResourceException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -24,10 +26,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Profile("bitrix")
@@ -40,18 +46,18 @@ public class CrmSyncService {
     private final BitrixProperties properties;
     private final CrmLinkRepository crmLinkRepository;
     private final ListingRepository listingRepository;
-    private final InquiryRepository inquiryRepository;
+    private final Validator validator;
 
     public CrmSyncService(BitrixConnectionFactoryInterface connectionFactory,
                           BitrixProperties properties,
                           CrmLinkRepository crmLinkRepository,
                           ListingRepository listingRepository,
-                          InquiryRepository inquiryRepository) {
+                          Validator validator) {
         this.connectionFactory = connectionFactory;
         this.properties = properties;
         this.crmLinkRepository = crmLinkRepository;
         this.listingRepository = listingRepository;
-        this.inquiryRepository = inquiryRepository;
+        this.validator = validator;
     }
 
     @Transactional
@@ -68,8 +74,7 @@ public class CrmSyncService {
 
             Optional<CrmLink> existing = crmLinkRepository.findByEntityTypeAndLocalId(CrmEntityType.LISTING, managed.getId());
             if (existing.isPresent()) {
-                conn.updateDeal(existing.get().getBitrixId(), fields);
-                touchLink(existing.get());
+                updateLinkedDeal(conn, existing.get(), managed, fields);
             } else {
                 int dealId = conn.createDeal(fields);
                 saveLink(CrmEntityType.LISTING, managed.getId(), dealId);
@@ -94,7 +99,6 @@ public class CrmSyncService {
             return;
         }
         int listings = 0;
-        int inquiries = 0;
         for (Listing listing : listingRepository.findAll()) {
             try {
                 syncListingStatus(listing);
@@ -103,18 +107,36 @@ public class CrmSyncService {
                 log.warn("Bitrix backfill failed for listing {}: {}", listing.getId(), e.getMessage());
             }
         }
-        for (Inquiry inquiry : inquiryRepository.findAll()) {
-            if (crmLinkRepository.findByEntityTypeAndLocalId(CrmEntityType.INQUIRY, inquiry.getId()).isPresent()) {
-                continue;
-            }
-            try {
-                syncInquiryCreated(inquiry);
-                inquiries++;
-            } catch (RuntimeException e) {
-                log.warn("Bitrix backfill failed for inquiry {}: {}", inquiry.getId(), e.getMessage());
-            }
+        log.info("Bitrix backfill finished: {} listings processed", listings);
+    }
+
+    @Transactional
+    public void reconcileDeletedDeals() {
+        if (!properties.isEnabled()) {
+            return;
         }
-        log.info("Bitrix backfill finished: {} listings, {} inquiries processed", listings, inquiries);
+        List<Long> listingIdsToDelete = new ArrayList<>();
+        runWithConnection(conn -> {
+            for (CrmLink link : crmLinkRepository.findAllByEntityType(CrmEntityType.LISTING)) {
+                if (conn.getDeal(link.getBitrixId()).isEmpty()) {
+                    listingIdsToDelete.add(link.getLocalId());
+                }
+            }
+        });
+        for (Long listingId : listingIdsToDelete) {
+            deleteListingByBitrixDeletion(listingId);
+        }
+    }
+
+    @Transactional
+    public void deleteListingByBitrixDeletion(long listingId) {
+        BitrixSyncContext.runInbound(() -> {
+            crmLinkRepository.deleteByEntityTypeAndLocalId(CrmEntityType.LISTING, listingId);
+            if (listingRepository.existsById(listingId)) {
+                listingRepository.deleteById(listingId);
+                log.info("Listing {} deleted because Bitrix deal was removed", listingId);
+            }
+        });
     }
 
     @Transactional
@@ -129,31 +151,7 @@ public class CrmSyncService {
             }
             Map<String, Object> fields = new HashMap<>();
             fields.put(properties.getDealFieldPromotion(), promotionLabel(managed.getPromotion()));
-            conn.updateDeal(link.get().getBitrixId(), fields);
-            touchLink(link.get());
-        }));
-    }
-
-    @Transactional
-    public void syncInquiryCreated(Inquiry inquiry) {
-        if (!properties.isEnabled()) {
-            return;
-        }
-        inquiryRepository.findById(inquiry.getId()).ifPresent(managed -> runWithConnection(conn -> {
-            Listing listing = managed.getListing();
-            Optional<CrmLink> dealLink = crmLinkRepository.findByEntityTypeAndLocalId(CrmEntityType.LISTING, listing.getId());
-            if (dealLink.isEmpty()) {
-                syncListingPublished(listing);
-                dealLink = crmLinkRepository.findByEntityTypeAndLocalId(CrmEntityType.LISTING, listing.getId());
-            }
-            if (dealLink.isEmpty()) {
-                return;
-            }
-            String subject = "Запрос на показ: объявление #" + listing.getId();
-            String description = "Покупатель: " + managed.getBuyer().getEmail()
-                    + "\nСообщение: " + (managed.getMessage() != null ? managed.getMessage() : "");
-            int activityId = conn.addDealActivity(dealLink.get().getBitrixId(), subject, description);
-            saveLink(CrmEntityType.INQUIRY, managed.getId(), activityId);
+            updateLinkedDeal(conn, link.get(), managed, fields);
         }));
     }
 
@@ -173,18 +171,36 @@ public class CrmSyncService {
         }
 
         listingRepository.findById(listingId).ifPresent(listing -> {
+            ListingCreateRequest current = listingToRequest(listing);
+            ListingCreateRequest prospective = listingToRequest(listing);
+            overlayInboundListingFields(prospective, listing, deal);
+
+            if (listingFieldsDiffer(current, prospective)) {
+                Optional<String> validationError = validateListingCreateRequest(prospective);
+                if (validationError.isPresent()) {
+                    log.warn("Inbound Bitrix deal {} rejected for listing {}: {}",
+                            deal.getId(), listingId, validationError.get());
+                    revertDealInBitrix(listing);
+                    return;
+                }
+            }
+
             BitrixSyncContext.runInbound(() -> {
                 boolean statusChanged = applyInboundStatus(listing, deal);
+                boolean titleChanged = applyInboundTitle(listing, deal);
                 boolean priceChanged = applyInboundPrice(listing, deal);
                 boolean descriptionChanged = applyInboundDescription(listing, deal);
                 boolean addressChanged = applyInboundAddress(listing, deal);
                 boolean areaChanged = applyInboundArea(listing, deal);
                 boolean roomsChanged = applyInboundRooms(listing, deal);
-                if (statusChanged || priceChanged || descriptionChanged
+                if (statusChanged || titleChanged || priceChanged || descriptionChanged
                         || addressChanged || areaChanged || roomsChanged) {
                     listingRepository.save(listing);
                     if (statusChanged) {
                         log.info("Inbound Bitrix: listing {} status -> {}", listingId, listing.getStatus());
+                    }
+                    if (titleChanged) {
+                        log.info("Inbound Bitrix: listing {} title -> {}", listingId, listing.getTitle());
                     }
                     if (priceChanged) {
                         log.info("Inbound Bitrix: listing {} price -> {}", listingId, listing.getPrice());
@@ -208,6 +224,99 @@ public class CrmSyncService {
         });
     }
 
+    private static ListingCreateRequest listingToRequest(Listing listing) {
+        ListingCreateRequest request = new ListingCreateRequest();
+        request.setTitle(listing.getTitle());
+        request.setDescription(listing.getDescription());
+        request.setAddress(listing.getAddress());
+        request.setRegion(listing.getRegion());
+        request.setPrice(listing.getPrice());
+        request.setAreaSqm(listing.getAreaSqm());
+        request.setRooms(listing.getRooms());
+        return request;
+    }
+
+    private void overlayInboundListingFields(ListingCreateRequest request, Listing listing, BitrixDealSnapshot deal) {
+        if (deal.getFields() != null && deal.getFields().containsKey("TITLE")) {
+            String incoming = normalizeInboundTitle(deal.getField("TITLE"));
+            if (!Objects.equals(listing.getTitle(), incoming)) {
+                request.setTitle(incoming);
+            }
+        }
+        if (deal.getFields() != null && deal.getFields().containsKey("OPPORTUNITY")) {
+            BigDecimal incoming = toBigDecimal(deal.getField("OPPORTUNITY"));
+            if (incoming != null && listing.getPrice().compareTo(incoming) != 0) {
+                request.setPrice(incoming);
+            }
+        }
+        if (deal.getFields() != null && deal.getFields().containsKey("COMMENTS")) {
+            Object raw = deal.getField("COMMENTS");
+            String normalized = raw == null || raw.toString().isBlank() ? null : raw.toString();
+            if (!Objects.equals(listing.getDescription(), normalized)) {
+                request.setDescription(normalized);
+            }
+        }
+        String addressField = properties.getDealFieldAddress();
+        if (addressField != null && deal.getFields() != null && deal.getFields().containsKey(addressField)) {
+            Object raw = deal.getField(addressField);
+            String incoming = raw == null || raw.toString().isBlank() ? null : raw.toString();
+            if (!Objects.equals(listing.getAddress(), incoming)) {
+                request.setAddress(incoming);
+            }
+        }
+        String areaField = properties.getDealFieldArea();
+        if (areaField != null && deal.getFields() != null && deal.getFields().containsKey(areaField)) {
+            BigDecimal incoming = toBigDecimal(deal.getField(areaField));
+            if (incoming != null
+                    && (listing.getAreaSqm() == null || listing.getAreaSqm().compareTo(incoming) != 0)) {
+                request.setAreaSqm(incoming);
+            }
+        }
+        String roomsField = properties.getDealFieldRooms();
+        if (roomsField != null && deal.getFields() != null && deal.getFields().containsKey(roomsField)) {
+            BigDecimal incoming = toBigDecimal(deal.getField(roomsField));
+            if (incoming != null) {
+                int rooms = incoming.intValue();
+                if (listing.getRooms() == null || listing.getRooms() != rooms) {
+                    request.setRooms(rooms);
+                }
+            }
+        }
+    }
+
+    private static boolean listingFieldsDiffer(ListingCreateRequest current, ListingCreateRequest prospective) {
+        return !Objects.equals(current.getTitle(), prospective.getTitle())
+                || !Objects.equals(current.getPrice(), prospective.getPrice())
+                || !Objects.equals(current.getDescription(), prospective.getDescription())
+                || !Objects.equals(current.getAddress(), prospective.getAddress())
+                || !Objects.equals(current.getAreaSqm(), prospective.getAreaSqm())
+                || !Objects.equals(current.getRooms(), prospective.getRooms());
+    }
+
+    private Optional<String> validateListingCreateRequest(ListingCreateRequest request) {
+        Set<ConstraintViolation<ListingCreateRequest>> violations = validator.validate(request);
+        if (violations.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(violations.stream()
+                .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                .collect(Collectors.joining("; ")));
+    }
+
+    private void revertDealInBitrix(Listing listing) {
+        runWithConnection(conn -> {
+            Optional<CrmLink> link = crmLinkRepository.findByEntityTypeAndLocalId(
+                    CrmEntityType.LISTING, listing.getId());
+            if (link.isEmpty()) {
+                log.warn("Cannot revert Bitrix deal: no CRM link for listing {}", listing.getId());
+                return;
+            }
+            upsertDealForListing(conn, listing);
+            log.info("Reverted Bitrix deal {} to DB state for listing {}",
+                    link.get().getBitrixId(), listing.getId());
+        });
+    }
+
     private boolean applyInboundStatus(Listing listing, BitrixDealSnapshot deal) {
         ListingStatus newStatus = statusForStage(deal.getStageId());
         if (newStatus == null || listing.getStatus() == newStatus) {
@@ -217,6 +326,18 @@ public class CrmSyncService {
         if (newStatus == ListingStatus.CLOSED && listing.getClosedAt() == null) {
             listing.setClosedAt(Instant.now());
         }
+        return true;
+    }
+
+    private boolean applyInboundTitle(Listing listing, BitrixDealSnapshot deal) {
+        if (deal.getFields() == null || !deal.getFields().containsKey("TITLE")) {
+            return false;
+        }
+        String incoming = normalizeInboundTitle(deal.getField("TITLE"));
+        if (Objects.equals(listing.getTitle(), incoming)) {
+            return false;
+        }
+        listing.setTitle(incoming);
         return true;
     }
 
@@ -301,11 +422,23 @@ public class CrmSyncService {
 
         Optional<CrmLink> link = crmLinkRepository.findByEntityTypeAndLocalId(CrmEntityType.LISTING, managed.getId());
         if (link.isPresent()) {
-            conn.updateDeal(link.get().getBitrixId(), fields);
-            touchLink(link.get());
+            updateLinkedDeal(conn, link.get(), managed, fields);
         } else {
             int dealId = conn.createDeal(fields);
             saveLink(CrmEntityType.LISTING, managed.getId(), dealId);
+        }
+    }
+
+    private void updateLinkedDeal(BitrixConnection conn, CrmLink link, Listing listing, Map<String, Object> fields) {
+        try {
+            conn.updateDeal(link.getBitrixId(), fields);
+            touchLink(link);
+        } catch (RuntimeException e) {
+            if (BitrixDealErrors.isNotFound(e)) {
+                deleteListingByBitrixDeletion(listing.getId());
+                return;
+            }
+            throw e;
         }
     }
 
@@ -379,6 +512,13 @@ public class CrmSyncService {
         return promotion != null ? promotion.name() : PromotionType.NONE.name();
     }
 
+    private static String normalizeInboundTitle(Object raw) {
+        if (raw == null || raw.toString().isBlank()) {
+            return null;
+        }
+        return raw.toString().trim();
+    }
+
     private static long toLong(Object value) {
         if (value instanceof Number n) {
             return n.longValue();
@@ -405,8 +545,7 @@ public class CrmSyncService {
         } catch (ResourceException e) {
             log.error("Bitrix JCA connection failed", e);
         } catch (RuntimeException e) {
-            log.error("Bitrix sync failed", e);
-            throw e;
+            log.warn("Bitrix sync failed: {}", e.getMessage());
         }
     }
 

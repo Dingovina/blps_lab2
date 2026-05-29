@@ -21,4 +21,9 @@ public class BitrixInboundSyncService implements BitrixEventListener {
     public void onDealUpdated(BitrixEventRecord event) {
         crmSyncService.applyInboundDeal(event);
     }
+
+    @Override
+    public void onPollCycleComplete() {
+        crmSyncService.reconcileDeletedDeals();
+    }
 }

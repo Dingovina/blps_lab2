@@ -21,8 +21,6 @@ public interface BitrixConnection extends AutoCloseable {
 
     List<BitrixDealSnapshot> listDealsModifiedAfter(Instant since, int categoryId);
 
-    int addDealActivity(int dealId, String subject, String description);
-
     @Override
     void close();
 }
