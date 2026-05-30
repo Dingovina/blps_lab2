@@ -58,3 +58,5 @@ app:
       virtual-host: ${RABBITMQ_VHOST:/}
   mail:
     from: ${MAIL_FROM:no-reply@cian.local}
+    brand-name: ${MAIL_BRAND_NAME:Cian}
+    support-email: ${MAIL_SUPPORT:support@cian.local}

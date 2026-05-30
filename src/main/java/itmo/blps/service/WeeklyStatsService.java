@@ -120,16 +120,16 @@ public class WeeklyStatsService {
     private String formatNotificationBody(WeeklyStats stats) {
         String range = DATE_FMT.format(stats.getPeriodStart()) + " – " + DATE_FMT.format(stats.getPeriodEnd());
         if (stats.getRole() == UserRole.SELLER) {
-            return "Сводка за " + range + ": опубликовано " + stats.getPublishedListings()
-                    + ", закрыто " + stats.getClosedListings()
-                    + ", завершённых обращений " + stats.getCompletedInquiries()
-                    + ", назначенных показов " + stats.getScheduledInquiries()
-                    + ". Подробности: GET /api/weekly";
+            return "Сводка за " + range + ":\n\n"
+                    + "Опубликовано: " + stats.getPublishedListings() + "\n"
+                    + "Закрыто: " + stats.getClosedListings() + "\n"
+                    + "Завершённых обращений: " + stats.getCompletedInquiries() + "\n"
+                    + "Назначенных показов: " + stats.getScheduledInquiries();
         }
-        return "Сводка за " + range + ": запросов на показ " + stats.getShowRequests()
-                + ", запланировано " + stats.getScheduledShowings()
-                + ", отклонено " + stats.getRejectedShowings()
-                + ", завершено " + stats.getCompletedShowings()
-                + ". Подробности: GET /api/weekly";
+        return "Сводка за " + range + ":\n\n"
+                + "Запросов на показ: " + stats.getShowRequests() + "\n"
+                + "Запланировано: " + stats.getScheduledShowings() + "\n"
+                + "Отклонено: " + stats.getRejectedShowings() + "\n"
+                + "Завершено: " + stats.getCompletedShowings();
     }
 }

@@ -10,4 +10,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class MailProperties {
 
     private String from;
+    private String brandName = "Cian";
+    private String supportEmail = "support@cian.local";
 }

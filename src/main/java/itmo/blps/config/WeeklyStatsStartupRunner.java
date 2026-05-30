@@ -1,16 +1,15 @@
 package itmo.blps.config;
 
 import itmo.blps.service.WeeklyStatsService;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component
 @Profile("!worker")
-@Order(2)
-public class WeeklyStatsStartupRunner implements ApplicationRunner {
+public class WeeklyStatsStartupRunner {
 
     private final WeeklyStatsService weeklyStatsService;
 
@@ -18,8 +17,9 @@ public class WeeklyStatsStartupRunner implements ApplicationRunner {
         this.weeklyStatsService = weeklyStatsService;
     }
 
-    @Override
-    public void run(ApplicationArguments args) {
+    @Order(2)
+    @EventListener(ApplicationReadyEvent.class)
+    public void generateOnStartup() {
         weeklyStatsService.generateWeeklyReports();
     }
 }
