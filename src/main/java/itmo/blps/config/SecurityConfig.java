@@ -69,6 +69,7 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(SecurityConfig::isUnknownApiPath).permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/webhooks/bitrix").permitAll()
                         .requestMatchers("/api/auth/login", "/api/auth/register", "/api/listings/search").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/listings/*").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()

@@ -3,7 +3,7 @@ app:
     enabled: true
     backfill-on-startup: ${BITRIX_BACKFILL_ON_STARTUP:true}
     rest-base-url: ${BITRIX_REST_BASE_URL:}
-    polling-interval-seconds: ${BITRIX_POLLING_INTERVAL_SECONDS:20}
+    webhook-application-token: ${BITRIX_WEBHOOK_APPLICATION_TOKEN:}
     deal-category-id: ${BITRIX_DEAL_CATEGORY_ID:0}
 
     deal-field-listing-id: ${BITRIX_DEAL_FIELD_LISTING_ID:UF_CRM_1779488860318}

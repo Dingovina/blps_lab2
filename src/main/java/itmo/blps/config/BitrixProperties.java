@@ -7,7 +7,7 @@ public class BitrixProperties {
 
     private boolean enabled;
     private String restBaseUrl;
-    private int pollingIntervalSeconds;
+    private String webhookApplicationToken;
     private int dealCategoryId;
     private String dealFieldListingId;
     private String dealFieldPromotion;
@@ -36,12 +36,12 @@ public class BitrixProperties {
         this.restBaseUrl = restBaseUrl;
     }
 
-    public int getPollingIntervalSeconds() {
-        return pollingIntervalSeconds;
+    public String getWebhookApplicationToken() {
+        return webhookApplicationToken;
     }
 
-    public void setPollingIntervalSeconds(int pollingIntervalSeconds) {
-        this.pollingIntervalSeconds = pollingIntervalSeconds;
+    public void setWebhookApplicationToken(String webhookApplicationToken) {
+        this.webhookApplicationToken = webhookApplicationToken;
     }
 
     public int getDealCategoryId() {

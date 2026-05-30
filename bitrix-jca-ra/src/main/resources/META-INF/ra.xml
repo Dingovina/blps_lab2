@@ -21,15 +21,5 @@
                 <connection-impl-class>itmo.blps.bitrix.jca.BitrixConnectionImpl</connection-impl-class>
             </connection-definition>
         </outbound-resourceadapter>
-        <inbound-resourceadapter>
-            <messageadapter>
-                <messagelistener>
-                    <messagelistener-type>itmo.blps.bitrix.jca.BitrixEventListener</messagelistener-type>
-                    <activationspec>
-                        <activationspec-class>itmo.blps.bitrix.jca.BitrixActivationSpec</activationspec-class>
-                    </activationspec>
-                </messagelistener>
-            </messageadapter>
-        </inbound-resourceadapter>
     </resourceadapter>
 </connector>

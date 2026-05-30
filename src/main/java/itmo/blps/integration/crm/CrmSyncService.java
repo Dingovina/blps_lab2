@@ -129,6 +129,12 @@ public class CrmSyncService {
     }
 
     @Transactional
+    public void applyInboundDealDeleted(int bitrixDealId) {
+        crmLinkRepository.findByEntityTypeAndBitrixId(CrmEntityType.LISTING, bitrixDealId)
+                .ifPresent(link -> deleteListingByBitrixDeletion(link.getLocalId()));
+    }
+
+    @Transactional
     public void deleteListingByBitrixDeletion(long listingId) {
         BitrixSyncContext.runInbound(() -> {
             crmLinkRepository.deleteByEntityTypeAndLocalId(CrmEntityType.LISTING, listingId);
